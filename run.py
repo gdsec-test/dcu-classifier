@@ -25,7 +25,7 @@ env = os.getenv('sysenv') or 'dev'
 config = config_by_name[env]()
 celery = Celery()
 celery.config_from_object(CeleryConfig(config))
-_logger = get_task_logger(__name__)
+_logger = get_task_logger('celery.tasks')
 _phash = PHash(config)
 
 

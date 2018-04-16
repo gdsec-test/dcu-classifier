@@ -1,8 +1,6 @@
 import os
 import urllib
 
-from encryption_helper import PasswordDecrypter
-
 
 class AppConfig(object):
     DBURL = 'localhost'
@@ -17,8 +15,7 @@ class AppConfig(object):
     # the spacing between each bucket is determined by the minimum confidence requested
 
     def __init__(self):
-        self.DB_PASS = urllib.quote(PasswordDecrypter.decrypt(os.getenv('DB_PASS'))) if os.getenv('DB_PASS') \
-            else 'password'
+        self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
 
 
@@ -55,10 +52,6 @@ class DevelopmentAppConfig(AppConfig):
 class TestingConfig(AppConfig):
     DBURL = 'mongodb://localhost/devphishstory'
     COLLECTION = 'test'
-    DB_HOST = 'localhost'
-    DB_PORT = 27017
-    # Setting this again here as tests are dependent on these exact values
-    BUCKET_WEIGHTS = [1, 2, 3, 4, 5]
 
 
 config_by_name = {'dev': DevelopmentAppConfig,

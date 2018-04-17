@@ -22,7 +22,12 @@ class CeleryConfig:
         self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
         self.CELERY_QUEUES = (
             Queue(app_settings.INBOUND_QUEUE,
-                  Exchange(app_settings.INBOUND_QUEUE),
-                  routing_key=app_settings.INBOUND_QUEUE),
+                  Exchange(app_settings.INBOUND_QUEUE, type="topic"),
+                  routing_key=app_settings.WORKER_MODE + '.request'),
         )
         self.CELERY_DEFAULT_QUEUE = app_settings.INBOUND_QUEUE
+        self.CELERY_RESULT_BACKEND = app_settings.DBURL
+        self.CELERY_MONGODB_BACKEND_SETTINGS = {
+            'database': app_settings.DB,
+            'taskmeta_collection': 'classifier-celery'
+        }

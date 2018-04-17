@@ -20,12 +20,21 @@ class CeleryConfig:
         self.BROKER_PASS = os.getenv('BROKER_PASS', 'password')
         self.BROKER_PASS = urllib.quote(self.BROKER_PASS)
         self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
-        self.CELERY_QUEUES = (
-            Queue(app_settings.INBOUND_QUEUE,
-                  Exchange(app_settings.INBOUND_QUEUE, type="topic"),
-                  routing_key=app_settings.WORKER_MODE + '.request'),
-        )
-        self.CELERY_DEFAULT_QUEUE = app_settings.INBOUND_QUEUE
+        env = os.getenv('sysenv')
+        if env == 'prod':
+            env = ''
+        if (os.getenv('WORKER_MODE') == 'classify'):
+            self.CELERY_QUEUES = (
+                    Queue(env+'fingerprint_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
+                           routing_key='fingerprint.request'),
+                    Queue(env+'classify_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
+                           routing_key='classify.request'),
+            )
+        else:
+            self.CELERY_QUEUES = (
+                    Queue(env+'scan_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
+                           routing_key='scan.request'),
+            )
         self.CELERY_RESULT_BACKEND = app_settings.DBURL
         self.CELERY_MONGODB_BACKEND_SETTINGS = {
             'database': app_settings.DB,

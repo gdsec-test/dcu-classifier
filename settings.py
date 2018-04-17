@@ -24,7 +24,7 @@ class ProductionAppConfig(AppConfig):
     DB = 'phishstory'
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_p_phish'
-    INBOUND_QUEUE = 'phash_classify'
+    EXCHANGE = 'classifier'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -34,7 +34,7 @@ class OTEAppConfig(AppConfig):
     DB = 'otephishstory'
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_o_phish'
-    INBOUND_QUEUE = 'otephash_classify'
+    EXCHANGE = 'oteclassifier'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -44,7 +44,7 @@ class DevelopmentAppConfig(AppConfig):
     DB = 'devphishstory'
     DB_HOST = '10.22.188.208'
     DB_USER = 'devuser'
-    INBOUND_QUEUE = 'devphash_classify'
+    EXCHANGE = 'devclassifier'
 
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()

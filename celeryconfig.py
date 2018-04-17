@@ -15,6 +15,7 @@ class CeleryConfig:
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_SEND_EVENTS = False
+    CELERY_TRACK_STARTED = True
 
     def __init__(self, app_settings):
         self.BROKER_PASS = os.getenv('BROKER_PASS', 'password')

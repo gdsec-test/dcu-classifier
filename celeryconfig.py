@@ -17,27 +17,31 @@ class CeleryConfig:
     CELERY_SEND_EVENTS = False
     CELERY_TRACK_STARTED = True
 
+    @staticmethod
+    def _getqueues(exchange):
+        env = os.getenv('sysenv')
+        queue_modifier = ''
+        if env != 'prod':
+            queue_modifier = env
+        if os.getenv('WORKER_MODE') == 'classify':
+            return (
+                Queue(queue_modifier+'fingerprint_tasks',   exchange=Exchange(exchange, type='topic'),
+                        routing_key='fingerprint.request'),
+                Queue(queue_modifier+'classify_tasks',   exchange=Exchange(exchange, type='topic'),
+                        routing_key='classify.request'),
+            )
+        return (
+            Queue(queue_modifier+'scan_tasks',   exchange=Exchange(exchange, type='topic'),
+                    routing_key='scan.request'),
+        )
+
     def __init__(self, app_settings):
         self.BROKER_PASS = os.getenv('BROKER_PASS', 'password')
         self.BROKER_PASS = urllib.quote(self.BROKER_PASS)
         self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
-        env = os.getenv('sysenv')
-        if env == 'prod':
-            env = ''
-        if (os.getenv('WORKER_MODE') == 'classify'):
-            self.CELERY_QUEUES = (
-                    Queue(env+'fingerprint_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
-                           routing_key='fingerprint.request'),
-                    Queue(env+'classify_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
-                           routing_key='classify.request'),
-            )
-        else:
-            self.CELERY_QUEUES = (
-                    Queue(env+'scan_tasks',   exchange=Exchange(app_settings.EXCHANGE, type='topic'),
-                           routing_key='scan.request'),
-            )
         self.CELERY_RESULT_BACKEND = app_settings.DBURL
         self.CELERY_MONGODB_BACKEND_SETTINGS = {
             'database': app_settings.DB,
             'taskmeta_collection': 'classifier-celery'
         }
+        self.CELERY_QUEUES = CeleryConfig._getqueues(app_settings.EXCHANGE)

@@ -43,8 +43,8 @@ def classify(data):
             'type': 'UNKNOWN'
         }
     if image_id:
-        return _phash.classify(data.get('image_id'), False, 0.75)
-    return _phash.classify(data.get('uri'), True, 0.75)
+        return _phash.classify(image_id, False, 0.75)
+    return _phash.classify(uri, True, 0.75)
         
 
 @celery.task(name='scan.request')

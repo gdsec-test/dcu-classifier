@@ -1,15 +1,18 @@
 import os
-import yaml
 import logging.config
-
-from celery import Celery
-from celery.utils.log import get_task_logger
-
+import yaml
+from celery import Celery, Task
 from celeryconfig import CeleryConfig
+from celery.utils.log import get_task_logger
 from settings import config_by_name
 from service.classifiers.phash import PHash
 
-path = os.path.dirname(os.path.abspath(__file__)) + '/' + 'logging.yml'
+env = os.getenv('sysenv', 'dev')
+config = config_by_name[env]()
+celery = Celery()
+celery.config_from_object(CeleryConfig(config))
+
+path = 'logging.yml'
 value = os.getenv('LOG_CFG', None)
 if value:
     path = value
@@ -20,37 +23,55 @@ if os.path.exists(path):
 else:
     logging.basicConfig(level=logging.INFO)
 logging.raiseExceptions = True
-
-env = os.getenv('sysenv') or 'dev'
-config = config_by_name[env]()
-celery = Celery()
-celery.config_from_object(CeleryConfig(config))
-_logger = get_task_logger('celery.tasks')
-_phash = PHash(config)
+logger = get_task_logger(__name__)
 
 
-@celery.task(name='classify.request')
-def classify(data):
+class ClassifyTask(Task):
+    '''
+    Base class for classification tasks
+    '''
+
+    def __init__(self):
+        self._phash = PHash(config)
+
+    @property
+    def phash(self):
+        return self._phash
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+@celery.task(bind=True, base=ClassifyTask, name='classify.request')
+def classify(self, data):
+    '''
+    Classify the given uri or image
+    :param data:
+    :return: dict outlining results of classification
+    '''
     image_id = data.get('image_id')
     uri = data.get('uri')
-    # Sanity check
-    if (image_id is None and uri is None) or (image_id is not None and uri is not None):
-        _logger.error('classify request received with too few/too many params!')
-        return {
-            'confidence': 0,
-            'target': 'ERROR',
-            'meta': 'This request was received with invalid parameters',
-            'type': 'UNKNOWN'
-        }
     if image_id:
-        return _phash.classify(image_id, False, 0.75)
-    return _phash.classify(uri, True, 0.75)
-        
+        results = self.phash.classify(image_id, url=False, confidence=0.75)
+    else:
+        results = self.phash.classify(uri, url=True, confidence=0.75)
+    results['id'] = self.request.id
+    return results
 
-@celery.task(name='scan.request')
-def scan(data):
+
+@celery.task(bind=True, base=ClassifyTask, name='scan.request')
+def scan(self, data):
+    # TODO
     pass
 
-@celery.task(name='fingerprint.request')
-def add_classification(data): #imageid, abuse_type, target=''):
-    return _phash.add_classification(data.get('image_id'), data.get('type'), data.get('target'))
+
+@celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
+def add_classification(self, data):
+    '''
+    Fingerprint the given image for use in future classification requests
+    :param data:
+    :return:
+    '''
+    return self.phash.add_classification(data.get('image_id'), data.get('type'), data.get('target'))
+
+

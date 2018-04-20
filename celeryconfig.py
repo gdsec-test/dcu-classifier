@@ -7,9 +7,9 @@ from kombu import Exchange, Queue
 class CeleryConfig:
     BROKER_TRANSPORT = 'pyamqp'
     BROKER_USE_SSL = True
-    CELERY_TASK_SERIALIZER = 'pickle'
-    CELERY_RESULT_SERIALIZER = 'pickle'
-    CELERY_ACCEPT_CONTENT = ['json', 'pickle']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
+    CELERY_ACCEPT_CONTENT = ['json']
     CELERY_IMPORTS = 'run'
     CELERYD_HIJACK_ROOT_LOGGER = False
     CELERY_ACKS_LATE = True
@@ -25,14 +25,14 @@ class CeleryConfig:
             queue_modifier = env
         if os.getenv('WORKER_MODE') == 'classify':
             return (
-                Queue(queue_modifier+'fingerprint_tasks',   exchange=Exchange(exchange, type='topic'),
-                        routing_key='fingerprint.request'),
-                Queue(queue_modifier+'classify_tasks',   exchange=Exchange(exchange, type='topic'),
-                        routing_key='classify.request'),
+                Queue(queue_modifier + 'fingerprint_tasks', exchange=Exchange(exchange, type='topic'),
+                      routing_key='fingerprint.request'),
+                Queue(queue_modifier + 'classify_tasks', exchange=Exchange(exchange, type='topic'),
+                      routing_key='classify.request'),
             )
         return (
-            Queue(queue_modifier+'scan_tasks',   exchange=Exchange(exchange, type='topic'),
-                    routing_key='scan.request'),
+            Queue(queue_modifier + 'scan_tasks', exchange=Exchange(exchange, type='topic'),
+                  routing_key='scan.request'),
         )
 
     def __init__(self, app_settings):

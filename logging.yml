@@ -1,6 +1,6 @@
 version: 1
 
-disable_existing_loggers: False
+disable_existing_loggers: True
 
 formatters:
     simple:
@@ -16,6 +16,21 @@ handlers:
         level: INFO
         formatter: detailed
         stream: ext://sys.stdout
+
+loggers:
+    # define logging levels, and logging handlers for your modules here
+    # each section should define a logging setup for a specific module in
+    # your code. If you dont define any loggers, the root logger will process
+    # the logging messages
+    service.classifiers:
+        level: INFO
+        handlers: [console]
+        propagate: no
+
+    celery.tasks:
+        level: INFO
+        handlers: [console]
+        propagate: no
 
 root:
     level: INFO

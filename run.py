@@ -29,46 +29,28 @@ _logger = get_task_logger('celery.tasks')
 _phash = PHash(config)
 
 
-@celery.task
-def classify(candidate, url=True, confidence=0.75):
-    """
-    Intake method to classify a provided candidate with an optional confidence
-    :param candidate:
-    :param url: True if the candidate is a url else candidate is treated as a DCU Image ID
-    :param confidence: a minimum confidence value that must be between 0.75 and 1.0 (inclusive)
-    Only matches greater than this param will be evaluated (unless this is 1.0, in which case,
-    only exact matches are evaluated)
-    :return: dictionary with at the following fields
-    {
-        "candidate": string,
-        "type": string,
-        "confidence": float,
-        "target": string,
-        "method": string,
-        "meta": {
-            // Additional data (implementation specific)
+@celery.task(name='classify.request')
+def classify(data):
+    image_id = data.get('image_id')
+    uri = data.get('uri')
+    # Sanity check
+    if (image_id is None and uri is None) or (image_id is not None and uri is not None):
+        _logger.error('classify request received with too few/too many params!')
+        return {
+            'confidence': 0,
+            'target': 'ERROR',
+            'meta': 'This request was received with invalid parameters',
+            'type': 'UNKNOWN'
         }
-    }
-    """
-    return _phash.classify(candidate, url, confidence)
+    if image_id:
+        return _phash.classify(image_id, False, 0.75)
+    return _phash.classify(uri, True, 0.75)
+        
 
+@celery.task(name='scan.request')
+def scan(data):
+    pass
 
-@celery.task
-def add_classification(imageid, abuse_type, target=''):
-    """
-        Hashes a given DCU image and adds it to the fingerprints collection
-        :param imageid: Existing BSON image id
-        :param abuse_type: Type of abuse associated with image
-        :param target: Brand abuse is targeting if applicable
-        :return Tuple: Boolean indicating success and a message
-        Example:
-        Invalid image id given
-        (False, 'Unable to locate image xyz')
-        Error trying to hash image
-        (False, 'Unable to hash image xyz')
-        A new document was inserted
-        (True, '')
-        A new document was not created. This can be for several reasons.
-        Most likely a document with the same hash already exists
-    """
-    return _phash.add_classification(imageid, abuse_type, target)
+@celery.task(name='fingerprint.request')
+def add_classification(data): #imageid, abuse_type, target=''):
+    return _phash.add_classification(data.get('image_id'), data.get('type'), data.get('target'))

@@ -7,7 +7,7 @@ from celery.utils.log import get_task_logger
 from settings import config_by_name
 from service.classifiers.phash import PHash
 
-env = os.getenv('sysenv') or 'dev'
+env = os.getenv('sysenv', 'dev')
 config = config_by_name[env]()
 celery = Celery()
 celery.config_from_object(CeleryConfig(config))

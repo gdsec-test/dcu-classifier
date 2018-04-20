@@ -7,7 +7,7 @@ metadata:
   labels:
     app: 'dcu-classifier'
 spec:
-  replicas: 1
+  replicas: 2
   revisionHistoryLimit: 2
   template:
     metadata:
@@ -21,7 +21,7 @@ spec:
         -
           name: 'dcu-classifier'
           imagePullPolicy: 'Always'
-          image: 'artifactory.secureserver.net:10014/docker-dcu-local/dcu-classifier:prod'
+          image: 'artifactory.secureserver.net:10014/docker-dcu-local/dcu-classifier:REPLACE_WITH_GIT_COMMIT'
           livenessProbe:
             exec:
               command:

@@ -52,9 +52,9 @@ def classify(self, data):
     image_id = data.get('image_id')
     uri = data.get('uri')
     if image_id:
-        results = self.phash.classify(image_id, False, 0.75)
+        results = self.phash.classify(image_id, url=False, confidence=0.75)
     else:
-        results = self.phash.classify(uri, True, 0.75)
+        results = self.phash.classify(uri, url=True, confidence=0.75)
     results['id'] = self.request.id
     return results
 

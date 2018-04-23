@@ -1,0 +1,47 @@
+---
+apiVersion: 'extensions/v1beta1'
+kind: 'Deployment'
+metadata:
+  name: 'dcu-scanner'
+  namespace: 'abuse-api-dev'
+  labels:
+    app: 'dcu-scanner'
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      labels:
+        app: 'dcu-scanner'
+    spec:
+      imagePullSecrets:
+        -
+          name: 'k8s-artifactory-creds'
+      containers:
+        -
+          name: 'dcu-scanner'
+          imagePullPolicy: 'Always'
+          image: 'artifactory.secureserver.net:10014/docker-dcu-local/dcu-classifier:dev'
+          livenessProbe:
+            exec:
+              command:
+                - '/app/health.sh'
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          env:
+          - name: BUILD_DATE
+            value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
+          - name: sysenv
+            value: dev
+          - name: WORKER_MODE
+            value: scan
+          - name: BROKER_PASS
+            valueFrom:
+              secretKeyRef:
+                name: amqp-dcu-classifier
+                key: password
+          - name: DB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: db-dcu-classifier
+                key: password

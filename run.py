@@ -6,8 +6,10 @@ import requests
 from celery import Celery, Task
 from celeryconfig import CeleryConfig
 from celery.utils.log import get_task_logger
+from requests.exceptions import RequestException
 from settings import config_by_name
 from service.classifiers.phash import PHash
+from service.parsers.parse_sitemap import SitemapParser
 
 env = os.getenv('sysenv', 'dev')
 config = config_by_name[env]()
@@ -27,7 +29,6 @@ else:
 logging.raiseExceptions = True
 logger = get_task_logger(__name__)
 
-
 class ClassifyTask(Task):
     '''
     Base class for classification tasks
@@ -35,6 +36,7 @@ class ClassifyTask(Task):
 
     def __init__(self):
         self._phash = PHash(config)
+        self._parser = SitemapParser(config.MAX_AGE)
 
     @property
     def phash(self):
@@ -70,10 +72,13 @@ def scan(self, data):
     '''
 
     uri = data.get('uri')
-    sitemap_mode = data.get('sitemap', False)
 
-    if sitemap_mode:
-        pass
+    if data.get('sitemap'):
+        try:
+            for url in self._parser.get_urls_from_web(uri):
+                self.scan({ 'uri': url })
+        except RequestException as e:
+            logger.error('Error fetching sitemap for {}: {}'.format(uri, e.message))
     else:
         results = self.phash.classify(uri, url=True, confidence=0.75)
         if results.get('confidence', 0.0) >= 0.79:
@@ -86,7 +91,7 @@ def scan(self, data):
                 }
                 return requests.post(config.API_URL, json=payload, headers=headers)
             except Exception as e:
-                self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
+                logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 
 @celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
 def add_classification(self, data):

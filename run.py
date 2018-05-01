@@ -76,7 +76,7 @@ def scan(self, data):
     if data.get('sitemap'):
         try:
             for url in self._parser.get_urls_from_web(uri):
-                self.scan({ 'uri': url })
+                self.scan({'uri': url})
         except RequestException as e:
             logger.error('Error fetching sitemap for {}: {}'.format(uri, e.message))
     else:

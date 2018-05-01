@@ -1,6 +1,8 @@
 import os
 import logging.config
 import yaml
+import requests
+
 from celery import Celery, Task
 from celeryconfig import CeleryConfig
 from celery.utils.log import get_task_logger
@@ -61,9 +63,30 @@ def classify(self, data):
 
 @celery.task(bind=True, base=ClassifyTask, name='scan.request')
 def scan(self, data):
-    # TODO
-    pass
+    '''
+    Scan the given uri or image
+    :param data:
+    :return: None
+    '''
 
+    uri = data.get('uri')
+    sitemap_mode = data.get('sitemap', False)
+
+    if sitemap_mode:
+        pass
+    else:
+        results = self.phash.classify(uri, url=True, confidence=0.75)
+        if results.get('confidence', 0.0) >= 0.79:
+            try:
+                headers = {'Authorization': config.API_JWT}
+                payload = {
+                    'type': results.get('type'),
+                    'source': uri,
+                    'target': results.get('target', '')
+                }
+                return requests.post(config.API_URL, json=payload, headers=headers)
+            except Exception as e:
+                self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 
 @celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
 def add_classification(self, data):

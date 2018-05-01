@@ -13,6 +13,7 @@ class AppConfig(object):
     BUCKET_WEIGHTS = [1, 2, 3, 4, 5]  # how to weigh each bucket
     # the number of buckets is derived from the number of weights
     # the spacing between each bucket is determined by the minimum confidence requested
+    MAX_AGE = 1 # Maximum number of days old a URL can be for sitemap extraction
 
     def __init__(self):
         self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'

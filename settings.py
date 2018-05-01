@@ -18,6 +18,7 @@ class AppConfig(object):
         self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify' #should be either classify or scan
+        self.API_JWT = 'sso-key {}:{}'.format(os.getenv('key'), os.getenv('secret'))
 
 
 class ProductionAppConfig(AppConfig):
@@ -25,6 +26,7 @@ class ProductionAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_p_phish'
     EXCHANGE = 'classifier'
+    API_URL = 'https://api.godaddy.com/v1/abuse/tickets'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -35,6 +37,7 @@ class OTEAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_o_phish'
     EXCHANGE = 'oteclassifier'
+    API_URL = 'https://api.ote-godaddy.com/v1/abuse/tickets'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -45,6 +48,7 @@ class DevelopmentAppConfig(AppConfig):
     DB_HOST = '10.22.188.208'
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
+    API_URL = 'http://api.dev-godaddy.com/v1/abuse/tickets'
 
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()

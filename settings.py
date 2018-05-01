@@ -19,7 +19,7 @@ class AppConfig(object):
         self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify' #should be either classify or scan
-        self.API_JWT = 'sso-key {}:{}'.format(os.getenv('key'), os.getenv('secret'))
+        self.API_JWT = 'sso-key {}:{}'.format(os.getenv('API_KEY'), os.getenv('API_SECRET'))
 
 
 class ProductionAppConfig(AppConfig):

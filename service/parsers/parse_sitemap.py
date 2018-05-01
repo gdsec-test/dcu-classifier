@@ -12,7 +12,6 @@ class SitemapParser:
     DATE_FORMAT = '%Y-%m-%d'
 
     def __init__(self, days_to_go_back=1):
-        self._parser = None
         self._days_to_go_back = days_to_go_back
         self._logger = logging.getLogger(__name__)
 

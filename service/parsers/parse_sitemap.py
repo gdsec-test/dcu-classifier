@@ -49,12 +49,12 @@ class SitemapParser:
         """
         return url_tag.loc.text.strip(), self._is_valid_date(url_tag)
 
-    def _parse_sitemap_contents(self):
+    def _parse_sitemap_contents(self, parser):
         """
         Parse the sitemap xml file based on the parent tag as defined in self.PARENT_TAG
         :return:
         """
-        urls = self._parser.find_all(self.PARENT_TAG)
+        urls = parser.find_all(self.PARENT_TAG)
 
         for url in urls:
             uri, change_date = self._get_uri_and_date(url)
@@ -72,8 +72,8 @@ class SitemapParser:
             self._logger.error(message)
             raise IOError(message)
         with open(filepath, 'r') as xmlfile:
-            self._parser = bs(xmlfile, 'lxml')
-        return self._parse_sitemap_contents()
+            parser = bs(xmlfile, 'lxml')
+        return self._parse_sitemap_contents(parser)
 
     def get_urls_from_web(self, uri):
         """
@@ -86,5 +86,5 @@ class SitemapParser:
             message = 'Bad status code "{}" while getting sitemap file {}'.format(r.status_code, uri)
             self._logger.error(message)
             raise RequestException(message)
-        self._parser = bs(r.text, 'lxml')
-        return self._parse_sitemap_contents()
+        parser = bs(r.text, 'lxml')
+        return self._parse_sitemap_contents(parser)

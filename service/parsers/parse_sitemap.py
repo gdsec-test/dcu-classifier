@@ -3,6 +3,7 @@ import os.path
 import requests
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup as bs
+from requests.exceptions import RequestException
 
 
 class SitemapParser:
@@ -49,21 +50,19 @@ class SitemapParser:
         """
         return url_tag.loc.text, self._is_valid_date(url_tag)
 
-    def _parse(self):
+    def _parse_sitemap_contents(self):
         """
         Parse the sitemap xml file based on the parent tag as defined in self.PARENT_TAG
         :return:
         """
         urls = self._parser.find_all(self.PARENT_TAG)
-        uri_list_to_review = []
 
         for url in urls:
-            (uri, change_date) = self._get_uri_and_date(url)
+            uri, change_date = self._get_uri_and_date(url)
             if change_date:
-                uri_list_to_review.append({'uri': uri, 'date': change_date})
-        return uri_list_to_review
+                yield uri
 
-    def get_contents_file(self, filepath):
+    def get_urls_from_filepath(self, filepath):
         """
         Assume you're receiving a filepath to a sitemap xml file
         :param filepath:
@@ -73,18 +72,11 @@ class SitemapParser:
             message = 'Sitemap file not found {}'.format(filepath)
             self._logger.error(message)
             raise IOError(message)
-        try:
-            # BeautifulSoup takes an open file handle
-            xml = open(filepath, 'r')
-            self._parser = bs(xml, 'lxml')
-        except Exception as e:
-            self._logger.error('Error reading file {} : {}'.format(filepath, e.message))
-            raise IOError(e.message)
-        finally:
-            xml.close()
-        return self._parse()
+        with open(filepath, 'r') as xmlfile:
+            self._parser = bs(xmlfile, 'lxml')
+        return self._parse_sitemap_contents()
 
-    def get_contents_url(self, uri):
+    def get_urls_from_web(self, uri):
         """
         Assume you're receiving a url to a sitemap xml file
         :param uri:
@@ -94,6 +86,6 @@ class SitemapParser:
         if r.status_code != requests.codes.ok:
             message = 'Bad status code "{}" while getting sitemap file {}'.format(r.status_code, uri)
             self._logger.error(message)
-            raise IOError(message)
+            raise RequestException(message)
         self._parser = bs(r.text, 'lxml')
-        return self._parse()
+        return self._parse_sitemap_contents()

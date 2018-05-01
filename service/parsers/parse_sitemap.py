@@ -25,7 +25,7 @@ class SitemapParser:
         """
         date_obj = datetime.strptime(date_string, self.DATE_FORMAT)
         oldest_date = self.TODAY - timedelta(self._days_to_go_back)
-        return date_obj > oldest_date
+        return date_obj >= oldest_date
 
     def _is_valid_date(self, url_tag):
         """
@@ -38,7 +38,7 @@ class SitemapParser:
             return self.TODAY.strftime(self.DATE_FORMAT)
 
         # In the event the date is really a datetime, remove the time portion
-        changed_date = url_tag.lastmod.text.split('T')[0]
+        changed_date = url_tag.lastmod.text.strip().split('T')[0]
         if self._date_within_threshold(changed_date):
             return changed_date
 
@@ -48,7 +48,7 @@ class SitemapParser:
         :param url_tag:
         :return: tuple
         """
-        return url_tag.loc.text, self._is_valid_date(url_tag)
+        return url_tag.loc.text.strip(), self._is_valid_date(url_tag)
 
     def _parse_sitemap_contents(self):
         """

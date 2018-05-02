@@ -1,11 +1,15 @@
 import os
 import logging.config
 import yaml
+import requests
+
 from celery import Celery, Task
 from celeryconfig import CeleryConfig
 from celery.utils.log import get_task_logger
+from requests.exceptions import RequestException
 from settings import config_by_name
 from service.classifiers.phash import PHash
+from service.parsers.parse_sitemap import SitemapParser
 
 env = os.getenv('sysenv', 'dev')
 config = config_by_name[env]()
@@ -25,7 +29,6 @@ else:
 logging.raiseExceptions = True
 logger = get_task_logger(__name__)
 
-
 class ClassifyTask(Task):
     '''
     Base class for classification tasks
@@ -33,6 +36,7 @@ class ClassifyTask(Task):
 
     def __init__(self):
         self._phash = PHash(config)
+        self._parser = SitemapParser(config.MAX_AGE)
 
     @property
     def phash(self):
@@ -40,6 +44,20 @@ class ClassifyTask(Task):
 
     def run(self, *args, **kwargs):
         pass
+
+    def _scanuri(self, uri):
+        results = self.phash.classify(uri, url=True, confidence=0.75)
+        if results.get('confidence', 0.0) >= 0.79:
+            try:
+                headers = {'Authorization': config.API_JWT}
+                payload = {
+                    'type': results.get('type'),
+                    'source': uri,
+                    'target': results.get('target', '')
+                }
+                requests.post(config.API_URL, json=payload, headers=headers)
+            except Exception as e:
+                logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 
 
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')
@@ -61,9 +79,27 @@ def classify(self, data):
 
 @celery.task(bind=True, base=ClassifyTask, name='scan.request')
 def scan(self, data):
-    # TODO
-    pass
+    '''
+    Scan the given uri or image
+    :param data:
+    :return: dict outlining details of the scan task
+    '''
 
+    uri = data.get('uri')
+
+    if data.get('sitemap'):
+        try:
+            for url in self._parser.get_urls_from_web(uri):
+                self._scanuri(url)
+        except RequestException as e:
+            logger.error('Error fetching sitemap for {}: {}'.format(uri, e.message))
+    else:
+        self._scanuri(uri)
+    return {
+        'id': self.request.id,
+        'uri': uri,
+        'sitemap': data.get('sitemap', False)
+    }
 
 @celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
 def add_classification(self, data):

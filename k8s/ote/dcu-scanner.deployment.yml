@@ -45,3 +45,13 @@ spec:
               secretKeyRef:
                 name: db-dcu-classifier
                 key: password
+          - name: API_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: api-classifier
+                key: secret
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: api-classifier
+                key: key

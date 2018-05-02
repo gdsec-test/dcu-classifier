@@ -68,7 +68,7 @@ def scan(self, data):
     '''
     Scan the given uri or image
     :param data:
-    :return: None
+    :return: dict outlining details of the scan task
     '''
 
     uri = data.get('uri')
@@ -89,9 +89,14 @@ def scan(self, data):
                     'source': uri,
                     'target': results.get('target', '')
                 }
-                return requests.post(config.API_URL, json=payload, headers=headers)
+                requests.post(config.API_URL, json=payload, headers=headers)
             except Exception as e:
                 logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
+    return {
+        'id': self.request.id,
+        'uri': uri,
+        'sitemap': data.get('sitemap', False)
+    }
 
 @celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
 def add_classification(self, data):

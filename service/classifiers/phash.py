@@ -61,10 +61,12 @@ class PHash(Classifier):
         """
         valid, screenshot = self._validate(uri)
         if not valid:
+            self._logger.debug('_classify_uri got {} as an invalid uri'.format(uri))
             ret_dict = PHash._get_response_dict()
             ret_dict['candidate'] = uri
             return ret_dict
         hash_candidate = self._get_image_hash(io.BytesIO(screenshot))
+        self._logger.debug('_classify_uri got uri {} ; hash candidate is {}'.format(uri, hash_candidate))
         doc, certainty = self._find_match(hash_candidate, confidence)
         return PHash._create_response(uri, doc, certainty)
 
@@ -110,6 +112,8 @@ class PHash(Classifier):
                 continue
 
             certainty = PHash._confidence(str(hash_candidate), str(doc_hash)) * 100
+            self._logger.debug('Found _id {} as a {} confidence match'.format(doc.get('_id'), certainty))
+
             if certainty <= min_confidence and min_confidence != 100.0:
                 continue
             # calculate the index for the appropriate bucket
@@ -121,6 +125,8 @@ class PHash(Classifier):
             confidence_buckets[bucket] += count
             type_buckets[doc.get('type', 'UNKNOWN')][bucket] += count
             target_buckets[doc.get('target', 'UNKNOWN')][bucket] += count
+
+        self._logger.debug('confidence buckets result is {}'.format(confidence_buckets))
 
         if min_confidence == 100.0:
             match_confidence = 1.0 if confidence_buckets[0] else 0.0
@@ -175,6 +181,7 @@ class PHash(Classifier):
         if not image_hash:
             return False, 'Unable to hash image {}'.format(imageid)
 
+	self._logger.debug('Image ID {} fingerprinted as image hash {}'.format(imageid, image_hash))
         if self._mongo._collection.find_one_and_update(
                 {
                     'chunk1': str(image_hash)[0:4],

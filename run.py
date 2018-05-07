@@ -37,6 +37,7 @@ class ClassifyTask(Task):
     def __init__(self):
         self._phash = PHash(config)
         self._parser = SitemapParser(config.MAX_AGE)
+        self._logger = logging.getLogger(__name__)
 
     @property
     def phash(self):
@@ -47,7 +48,7 @@ class ClassifyTask(Task):
 
     def _scanuri(self, uri):
         results = self.phash.classify(uri, url=True, confidence=0.75)
-        logger.debug('Scanned uri {} and got results: {}'.format(uri, results))
+        self._logger.debug('Scanned uri {} and got results: {}'.format(uri, results))
         if results.get('confidence', 0.0) >= 0.79:
             try:
                 headers = {'Authorization': config.API_JWT}
@@ -57,12 +58,12 @@ class ClassifyTask(Task):
                     'target': results.get('target', '')
                 }
                 if env == 'dev': #safeguard; headers contains sensitive info
-                    logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
+                    self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
                 result = requests.post(config.API_URL, json=payload, headers=headers)
                 if env == 'dev':
-                    logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))
+                    self._logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))
             except Exception as e:
-                logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
+                self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 
 
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')

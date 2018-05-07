@@ -57,7 +57,7 @@ class ClassifyTask(Task):
                     'target': results.get('target', '')
                 }
                 if env == 'dev': #safeguard; headers contains sensitive info
-                    logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URLL, payload, headers))
+                    logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
                 result = requests.post(config.API_URL, json=payload, headers=headers)
                 if env == 'dev':
                     logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))

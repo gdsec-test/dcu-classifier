@@ -50,7 +50,10 @@ class PHash(Classifier):
         if (confidence >= 1.0):
             confidence = 1.0
 
-        return self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
+        results = self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
+        self._logger.debug('phash.classify classified {} with resultset {}'.format(candidate, results))
+        return results
+#        return self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
 
     def _classify_uri(self, uri, confidence):
         """

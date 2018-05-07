@@ -49,7 +49,7 @@ class DevelopmentAppConfig(AppConfig):
     DB_HOST = '10.22.188.208'
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
-    API_URL = 'http://api.dev-godaddy.com/v1/abuse/tickets'
+    API_URL = 'https://api.dev-godaddy.com/v1/abuse/tickets'
 
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()

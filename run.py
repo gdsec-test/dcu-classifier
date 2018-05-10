@@ -48,7 +48,7 @@ class ClassifyTask(Task):
 
     def _scanuri(self, uri):
         results = self.phash.classify(uri, url=True, confidence=0.75)
-        self._logger.debug('Scanned uri {} and got results: {}'.format(uri, results))
+        self._logger.info('Scanned uri {} and got results: {}'.format(uri, results))
         if results.get('confidence', 0.0) >= 0.79:
             try:
                 headers = {'Authorization': config.API_JWT}
@@ -58,10 +58,10 @@ class ClassifyTask(Task):
                     'target': results.get('target', '')
                 }
                 if env == 'dev': #safeguard; headers contains sensitive info
-                    self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
+                    self._logger.info('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
                 result = requests.post(config.API_URL, json=payload, headers=headers)
                 if env == 'dev':
-                    self._logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))
+                    self._logger.info('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))
             except Exception as e:
                 self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 

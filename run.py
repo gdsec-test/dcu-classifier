@@ -13,9 +13,12 @@ from service.parsers.parse_sitemap import SitemapParser
 
 env = os.getenv('sysenv', 'dev')
 config = config_by_name[env]()
+
 celery = Celery()
 celery.config_from_object(CeleryConfig(config))
+logger = get_task_logger('celery.tasks')
 
+# setup logging
 path = 'logging.yml'
 value = os.getenv('LOG_CFG', None)
 if value:
@@ -27,7 +30,6 @@ if os.path.exists(path):
 else:
     logging.basicConfig(level=logging.INFO)
 logging.raiseExceptions = True
-logger = get_task_logger(__name__)
 
 class ClassifyTask(Task):
     '''

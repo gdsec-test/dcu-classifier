@@ -51,7 +51,7 @@ class PHash(Classifier):
             confidence = 1.0
 
         results = self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
-        self._logger.debug('phash.classify classified {} with resultset {}'.format(candidate, results))
+        self._logger.info('phash.classify classified {} with resultset {}'.format(candidate, results))
         return results
 #        return self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
 
@@ -64,12 +64,12 @@ class PHash(Classifier):
         """
         valid, screenshot = self._validate(uri)
         if not valid:
-            self._logger.debug('_classify_uri got {} as an invalid uri'.format(uri))
+            self._logger.warning('_classify_uri got {} as an invalid uri'.format(uri))
             ret_dict = PHash._get_response_dict()
             ret_dict['candidate'] = uri
             return ret_dict
         hash_candidate = self._get_image_hash(io.BytesIO(screenshot))
-        self._logger.debug('_classify_uri got uri {} ; hash candidate is {}'.format(uri, hash_candidate))
+        self._logger.info('_classify_uri got uri {} ; hash candidate is {}'.format(uri, hash_candidate))
         doc, certainty = self._find_match(hash_candidate, confidence)
         return PHash._create_response(uri, doc, certainty)
 
@@ -83,7 +83,7 @@ class PHash(Classifier):
         image = None
         try:
             _, image = self._mongo.get_file(imageid)
-        except Exception as e:
+        except Exception:
             self._logger.error('Unable to find image {}'.format(imageid))
         image_hash = self._get_image_hash(io.BytesIO(image))
         doc, certainty = self._find_match(image_hash, confidence)
@@ -110,12 +110,12 @@ class PHash(Classifier):
         for doc in self._search(hash_candidate):
             try:
                 doc_hash = imagehash.hex_to_hash(PHash._assemble_hash(doc))
-            except Exception as e:
+            except Exception:
                 self._logger.error('Error assembling hash for {}'.format(doc.get('_id')))
                 continue
 
             certainty = PHash._confidence(str(hash_candidate), str(doc_hash)) * 100
-            self._logger.debug('Found _id {} as a {} confidence match'.format(doc.get('_id'), certainty))
+            self._logger.info('Found _id {} as a {} confidence match'.format(doc.get('_id'), certainty))
 
             if certainty <= min_confidence and min_confidence != 100.0:
                 continue
@@ -129,7 +129,7 @@ class PHash(Classifier):
             type_buckets[doc.get('type', 'UNKNOWN')][bucket] += count
             target_buckets[doc.get('target', 'UNKNOWN')][bucket] += count
 
-        self._logger.debug('confidence buckets result is {}'.format(confidence_buckets))
+        self._logger.info('confidence buckets result is {}'.format(confidence_buckets))
 
         if min_confidence == 100.0:
             match_confidence = 1.0 if confidence_buckets[0] else 0.0
@@ -175,16 +175,15 @@ class PHash(Classifier):
         Most likely a document with the same hash already exists
         (False, 'No new document created for xyz')
         """
-        image = None
         try:
             _, image = self._mongo.get_file(imageid)
-        except Exception as e:
+        except Exception:
             return False, 'Unable to locate image {}'.format(imageid)
         image_hash = self._get_image_hash(io.BytesIO(image))
         if not image_hash:
             return False, 'Unable to hash image {}'.format(imageid)
 
-	self._logger.debug('Image ID {} fingerprinted as image hash {}'.format(imageid, image_hash))
+        self._logger.info('Image ID {} fingerprinted as image hash {}'.format(imageid, image_hash))
         if self._mongo._collection.find_one_and_update(
                 {
                     'chunk1': str(image_hash)[0:4],

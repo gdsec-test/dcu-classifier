@@ -4,6 +4,7 @@ DOCKERREPO=artifactory.secureserver.net:10014/docker-dcu-local/dcu-classifier
 DATE=$(shell date)
 COMMIT=
 BUILD_BRANCH=origin/master
+SHELL=/bin/bash
 
 # libraries we need to stage for pip to install inside Docker build
 PRIVATE_PIPS=git@github.secureserver.net:ITSecurity/dcdatabase.git

@@ -1,6 +1,6 @@
 REPONAME=infosec-dcu/dcu-classifier
 BUILDROOT=$(HOME)/dockerbuild/$(REPONAME)
-DOCKERREPO=artifactory.secureserver.net:10014/docker-dcu-local/dcu-classifier
+DOCKERREPO=docker-dcu-local.artifactory.secureserver.net/dcu-classifier
 DATE=$(shell date)
 COMMIT=
 BUILD_BRANCH=origin/master

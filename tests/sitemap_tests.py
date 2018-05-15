@@ -12,6 +12,7 @@ class TestSitemapParser():
     SITEMAP_URL_GOOD = 'https://xmlsitemapgenerator.org/help/example-xml-sitemap.xml'
     SITEMAP_URL_BAD = 'http://example.com/unknown_file.xml'
     EXPECTED_URL = 'http://www.example.com/catalog?item=12&desc=vacation_hawaii'
+    SITEMAP_OF_SITEMAPS = 'files/sitemap_of_sitemaps_files.xml'
 
     def setUp(self):
         self._parser = SitemapParser(self.DAYS_TO_GO_BACK)
@@ -26,12 +27,21 @@ class TestSitemapParser():
         for url in self._parser.get_urls_from_filepath(self.SITEMAP_FILE_GOOD):
             assert_equals(url, self.EXPECTED_URL)
 
+    def test_get_urls_from_filepath_sitemap_of_sitemaps(self):
+        """
+        Reads a sitemap-of-sitemaps file, extracts the single good URL tag info
+        :return:
+        """
+        for url in self._parser.get_urls_from_filepath(self.SITEMAP_OF_SITEMAPS):
+            assert_equals(url, self.EXPECTED_URL)
+
     def test_get_urls_from_filepath_fail_bad_path(self):
         """
         Fails on a bad file path
         :return:
         """
-        assert_raises(IOError, self._parser.get_urls_from_filepath, self.SITEMAP_FILE_BAD)
+        no_file = self._parser.get_urls_from_filepath(self.SITEMAP_FILE_BAD)
+        assert_is_none(no_file)
 
     def test_get_urls_from_web_pass(self):
         """

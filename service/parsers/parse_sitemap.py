@@ -7,7 +7,8 @@ from requests.exceptions import RequestException
 
 
 class SitemapParser:
-    PARENT_TAG = 'url'
+    URL_TAG = 'url'
+    SITEMAP_TAG = 'sitemap'
     TODAY = datetime.now()
     DATE_FORMAT = '%Y-%m-%d'
 
@@ -51,10 +52,11 @@ class SitemapParser:
 
     def _parse_sitemap_contents(self, parser):
         """
-        Parse the sitemap xml file based on the parent tag as defined in self.PARENT_TAG
+        Parse the sitemap xml file based on the parent tag as defined in self.URL_TAG
+        :param parser:
         :return:
         """
-        urls = parser.find_all(self.PARENT_TAG)
+        urls = parser.find_all(self.URL_TAG)
 
         for url in urls:
             uri, change_date = self._get_uri_and_date(url)
@@ -63,16 +65,24 @@ class SitemapParser:
 
     def get_urls_from_filepath(self, filepath):
         """
-        Assume you're receiving a filepath to a sitemap xml file
+        Assume you're receiving a filepath to a sitemap xml file.  Since we dont
+        report back, we wont need to raise any Exceptions if we cant parse the
+        filepath sitemap given or any of the urls in that file
         :param filepath:
         :return:
         """
         if not os.path.isfile(filepath):
-            message = 'Sitemap file not found {}'.format(filepath)
-            self._logger.error(message)
-            raise IOError(message)
+            self._logger.error('Sitemap file not found {}'.format(filepath))
+            return
         with open(filepath, 'r') as xmlfile:
             parser = bs(xmlfile, 'lxml')
+
+        # Check to see if filepath is a sitemap-of-sitemaps.  If so, start
+        #  recursive calls to this method
+        sitemaps = parser.find_all(self.SITEMAP_TAG)
+        if sitemaps:
+            for sitemap in sitemaps:
+                return self.get_urls_from_filepath(sitemap.loc.text.strip())
         return self._parse_sitemap_contents(parser)
 
     def get_urls_from_web(self, uri):

@@ -3,4 +3,7 @@
     <sitemap>
         <loc>files/sitemap.xml</loc>
     </sitemap>
+    <sitemap>
+        <loc>files/unknown_file.xml</loc>
+    </sitemap>
 </sitemapindex>

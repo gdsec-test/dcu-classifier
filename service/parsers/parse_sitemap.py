@@ -54,7 +54,7 @@ class SitemapParser:
         """
         Parse the sitemap xml file based on the parent tag as defined in self.URL_TAG
         :param parser:
-        :return:
+        :return: returns a generator
         """
         urls = parser.find_all(self.URL_TAG)
 
@@ -97,4 +97,11 @@ class SitemapParser:
             self._logger.error(message)
             raise RequestException(message)
         parser = bs(r.text, 'lxml')
+
+        # Check to see if uri is a sitemap-of-sitemaps.  If so, start
+        #  recursive calls to this method
+        sitemaps = parser.find_all(self.SITEMAP_TAG)
+        if sitemaps:
+            for sitemap in sitemaps:
+                return self.get_urls_from_web(sitemap.loc.text.strip())
         return self._parse_sitemap_contents(parser)

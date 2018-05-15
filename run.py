@@ -31,10 +31,11 @@ else:
     logging.basicConfig(level=logging.INFO)
 logging.raiseExceptions = True
 
+
 class ClassifyTask(Task):
-    '''
+    """
     Base class for classification tasks
-    '''
+    """
 
     def __init__(self):
         self._phash = PHash(config)
@@ -59,22 +60,27 @@ class ClassifyTask(Task):
                     'source': uri,
                     'target': results.get('target', '')
                 }
-                if env == 'dev': #safeguard; headers contains sensitive info
-                    self._logger.info('Sending POST to {} with payload {} and headers {}'.format(config.API_URL, payload, headers))
+                if env == 'dev':  # safeguard; headers contains sensitive info
+                    self._logger.info('Sending POST to {} with payload {} and headers {}'.format(config.API_URL,
+                                                                                                 payload,
+                                                                                                 headers))
                 result = requests.post(config.API_URL, json=payload, headers=headers)
                 if env == 'dev':
-                    self._logger.info('Result from POST: status_code {} text {} json {}'.format(result.status_code, result.text, result.json()))
+                    self._logger.info('Result from POST: status_code {} text {} json {}'.format(result.status_code,
+                                                                                                result.text,
+                                                                                                result.json()))
             except Exception as e:
                 self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
 
 
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')
 def classify(self, data):
-    '''
+    """
     Classify the given uri or image
+    :param self:
     :param data:
     :return: dict outlining results of classification
-    '''
+    """
     image_id = data.get('image_id')
     uri = data.get('uri')
     if image_id:
@@ -87,14 +93,13 @@ def classify(self, data):
 
 @celery.task(bind=True, base=ClassifyTask, name='scan.request')
 def scan(self, data):
-    '''
+    """
     Scan the given uri or image
+    :param self:
     :param data:
     :return: dict outlining details of the scan task
-    '''
-
+    """
     uri = data.get('uri')
-
     if data.get('sitemap'):
         try:
             for url in self._parser.get_urls_from_web(uri):
@@ -109,13 +114,13 @@ def scan(self, data):
         'sitemap': data.get('sitemap', False)
     }
 
+
 @celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
 def add_classification(self, data):
-    '''
+    """
     Fingerprint the given image for use in future classification requests
+    :param self:
     :param data:
     :return:
-    '''
+    """
     return self.phash.add_classification(data.get('image_id'), data.get('type'), data.get('target'))
-
-

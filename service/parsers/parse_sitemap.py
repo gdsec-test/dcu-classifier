@@ -15,6 +15,7 @@ class SitemapParser:
     def __init__(self, days_to_go_back=1):
         self._days_to_go_back = days_to_go_back
         self._logger = logging.getLogger(__name__)
+        self._files_visited = []
 
     def _date_within_threshold(self, date_string):
         """
@@ -63,39 +64,22 @@ class SitemapParser:
             if change_date:
                 yield uri
 
-    def get_urls_from_filepath(self, filepath):
-        """
-        Assume you're receiving a filepath to a sitemap xml file.  Since we dont
-        report back, we wont need to raise any Exceptions if we cant parse the
-        filepath sitemap given or any of the urls in that file
-        :param filepath:
-        :return:
-        """
-        if not os.path.isfile(filepath):
-            self._logger.error('Sitemap file not found {}'.format(filepath))
-            return
-        with open(filepath, 'r') as xmlfile:
-            parser = bs(xmlfile, 'lxml')
-
-        # Check to see if filepath is a sitemap-of-sitemaps.  If so, start
-        #  recursive calls to this method
-        sitemaps = parser.find_all(self.SITEMAP_TAG)
-        if sitemaps:
-            for sitemap in sitemaps:
-                return self.get_urls_from_filepath(sitemap.loc.text.strip())
-        return self._parse_sitemap_contents(parser)
-
     def get_urls_from_web(self, uri):
         """
         Assume you're receiving a url to a sitemap xml file
         :param uri:
         :return:
         """
+        # Have we seen this URI recently?
+        if uri in self._files_visited:
+            return
+        self._files_visited.append(uri)
+
         r = requests.get(uri)
         if r.status_code != requests.codes.ok:
             message = 'Bad status code "{}" while getting sitemap file {}'.format(r.status_code, uri)
-            self._logger.error(message)
-            raise RequestException(message)
+            self._logger.warning(message)
+            return
         parser = bs(r.text, 'lxml')
 
         # Check to see if uri is a sitemap-of-sitemaps.  If so, start

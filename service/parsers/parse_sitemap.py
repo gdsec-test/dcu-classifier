@@ -72,20 +72,22 @@ class SitemapParser:
         """
         # Have we seen this URI recently?
         if uri in self._files_visited:
-            return
+            return []
         self._files_visited.append(uri)
 
         r = requests.get(uri)
         if r.status_code != requests.codes.ok:
             message = 'Bad status code "{}" while getting sitemap file {}'.format(r.status_code, uri)
             self._logger.warning(message)
-            return
+            return []
         parser = bs(r.text, 'lxml')
 
         # Check to see if uri is a sitemap-of-sitemaps.  If so, start
         #  recursive calls to this method
+        urls_to_return = []
         sitemaps = parser.find_all(self.SITEMAP_TAG)
         if sitemaps:
             for sitemap in sitemaps:
-                return self.get_urls_from_web(sitemap.loc.text.strip())
-        return self._parse_sitemap_contents(parser)
+                urls_to_return += self.get_urls_from_web(sitemap.loc.text.strip())
+        urls_to_return += self._parse_sitemap_contents(parser)
+        return urls_to_return

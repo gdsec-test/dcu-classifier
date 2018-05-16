@@ -16,6 +16,7 @@ class CeleryConfig:
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_SEND_EVENTS = False
     CELERY_TRACK_STARTED = True
+    CELERYD_CONCURRENCY = 2
 
     @staticmethod
     def _getqueues(exchange):

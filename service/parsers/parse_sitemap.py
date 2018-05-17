@@ -1,9 +1,7 @@
 import logging
-import os.path
 import requests
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup as bs
-from requests.exceptions import RequestException
 
 
 class SitemapParser:
@@ -16,6 +14,7 @@ class SitemapParser:
         self._days_to_go_back = days_to_go_back
         self._logger = logging.getLogger(__name__)
         self._files_visited = []
+        self._urls_to_return = []
 
     def _date_within_threshold(self, date_string):
         """
@@ -84,10 +83,10 @@ class SitemapParser:
 
         # Check to see if uri is a sitemap-of-sitemaps.  If so, start
         #  recursive calls to this method
-        urls_to_return = []
         sitemaps = parser.find_all(self.SITEMAP_TAG)
         if sitemaps:
             for sitemap in sitemaps:
-                urls_to_return += self.get_urls_from_web(sitemap.loc.text.strip())
-        urls_to_return += self._parse_sitemap_contents(parser)
-        return urls_to_return
+                self.get_urls_from_web(sitemap.loc.text.strip())
+        else:
+            self._urls_to_return += self._parse_sitemap_contents(parser)
+        return self._urls_to_return

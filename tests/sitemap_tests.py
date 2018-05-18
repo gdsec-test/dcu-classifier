@@ -70,9 +70,37 @@ def mocked_requests_get(*args, **kwargs):
             <loc>http://example.com/sitemap_site.xml</loc>
         </sitemap>
         <sitemap>
+            <loc>http://example.com/sitemap5.xml</loc>
+        </sitemap>
+        <sitemap>
             <loc>http://example.com/sitemap3.xml</loc>
         </sitemap>
     </sitemapindex>
+    """
+
+    sitemap_5_content = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+       <url>
+          <loc>http://www.example5.com/</loc>
+          <lastmod>2005-01-01</lastmod>
+          <changefreq>monthly</changefreq>
+          <priority>0.8</priority>
+       </url>
+       <url>
+          <loc>http://www.example5.com/good</loc>
+          <changefreq>weekly</changefreq>
+       </url>
+       <url>
+          <loc>http://www.example5.com/catalog?item=12&amp;desc=vacation_hawaii</loc>
+          <changefreq>weekly</changefreq>
+       </url>
+       <url>
+          <loc>http://www.example5.com/catalog?item=73&amp;desc=vacation_new_zealand</loc>
+          <lastmod>2004-12-23</lastmod>
+          <changefreq>weekly</changefreq>
+       </url>
+    </urlset>
     """
 
     if args[0] == 'http://example.com/sitemap1.xml':
@@ -83,6 +111,8 @@ def mocked_requests_get(*args, **kwargs):
         return MockResponse(sitemap_3_content, 200)
     elif args[0] == 'http://example.com/sitemap4.xml':
         return MockResponse(sitemap_4_content, 200)
+    elif args[0] == 'http://example.com/sitemap5.xml':
+        return MockResponse(sitemap_5_content, 200)
     return MockResponse(None, 404)
 
 
@@ -121,7 +151,7 @@ class TestSitemapParser():
         for url in self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_4):
             count += 1
         assert_equals(url, self.EXPECTED_URL)
-        assert_equals(count, 2)
+        assert_equals(count, 4)
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_fail_redundant_sitemap(self, mock_get):

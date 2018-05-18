@@ -88,5 +88,5 @@ class SitemapParser:
             for sitemap in sitemaps:
                 self.get_urls_from_web(sitemap.loc.text.strip())
         else:
-            self._urls_to_return += self._parse_sitemap_contents(parser)
+            self._urls_to_return.extend(self._parse_sitemap_contents(parser))
         return self._urls_to_return

@@ -141,14 +141,16 @@ class TestSitemapParser():
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_gzip_pass(self, mock_get):
         """
-        Reads in a gzipped sitemap file from URL, gunzips it, parses the content and passes
+        Reads in a gzipped sitemap file from URL, gunzips it, parses the content and passes.
+        There are 3 urls that have an old date and 2 urls that have no date, so we only
+        expect to parse the 2 urls with no date
         :param mock_get:
         :return:
         """
         count = 0
         for url in self._parser.get_urls_from_web(self.SITEMAP_GZIP_URL_GOOD):
             count += 1
-        assert_equals(count, 5)
+        assert_equals(count, 2)
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_sitemap_pass(self, mock_get):

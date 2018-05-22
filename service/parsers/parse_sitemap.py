@@ -65,6 +65,21 @@ class SitemapParser:
             if change_date:
                 yield uri
 
+    def _extract_content_from_request_object(self, request_object):
+        """
+        A method to extract the content given a request object, regardless if the
+        data is cleartext xml or gzipped
+        :param request_object:
+        :return:
+        """
+        # Are we working with a gzipped file?
+        if 'gzip' in request_object.headers.get('Content-Type'):
+            gzipper = gzip.GzipFile(fileobj=StringIO.StringIO(request_object.content))
+            xml = gzipper.read()
+        else:
+            xml = request_object.content
+        return xml
+
     def get_urls_from_web(self, uri):
         """
         Assume you're receiving a url to a sitemap xml file
@@ -82,16 +97,12 @@ class SitemapParser:
             self._logger.warning(message)
             return []
 
-        # Are we working with a gzipped file?
-        if 'gzip' in r.headers.get('Content-Type', None):
-            try:
-                gzipper = gzip.GzipFile(fileobj=StringIO.StringIO(r.content))
-                xml = gzipper.read()
-            except Exception as e:
-                self._logger.error('Unable to parse file {}: {}'.format(uri, e.message))
-                return []
-        else:
-            xml = r.content
+        # Extract the content given a request handle
+        try:
+            xml = self._extract_content_from_request_object(r)
+        except Exception as e:
+            self._logger.error('Unable to parse file {}: {}'.format(uri, e.message))
+            return []
 
         parser = bs(xml, 'lxml')
 

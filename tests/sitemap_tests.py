@@ -1,5 +1,4 @@
 import zlib
-import gzip
 from nose.tools import assert_equals, assert_false, assert_true
 from mock import patch
 from datetime import timedelta
@@ -110,41 +109,6 @@ def mocked_requests_get(*args, **kwargs):
 
     with open('files/sitemap.xml.gz', 'r') as myfile:
         sitemap_gzip_1_content = myfile.read()
-
-    sitemap_gzip_2_content = zlib.compress("""
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset
-          xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-                http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-        <url>
-            <loc>http://impcat.com/</loc>
-            <lastmod>2018-05-21T22:52:37+00:00</lastmod>
-            <priority>1.00</priority>
-        </url>
-        <url>
-            <loc>http://impcat.com/contact/</loc>
-            <lastmod>2018-05-21T22:52:37+00:00</lastmod>
-            <priority>0.80</priority>
-        </url>
-        <url>
-            <loc>http://impcat.com/faq/</loc>
-            <lastmod>2018-05-21T22:52:37+00:00</lastmod>
-            <priority>0.80</priority>
-        </url>
-        <url>
-            <loc>http://impcat.com/estimates/</loc>
-            <lastmod>2018-05-21T22:52:37+00:00</lastmod>
-            <priority>0.80</priority>
-        </url>
-        <url>
-            <loc>http://impcat.com/testimonials/</loc>
-            <lastmod>2018-05-21T22:52:37+00:00</lastmod>
-            <priority>0.80</priority>
-        </url>
-    </urlset>
-    """)
 
     if args[0] == 'http://example.com/sitemap1.xml':
         return MockResponse(sitemap_1_content, 200)

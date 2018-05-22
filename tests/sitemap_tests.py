@@ -1,4 +1,3 @@
-import zlib
 from nose.tools import assert_equals, assert_false, assert_true
 from mock import patch
 from datetime import timedelta

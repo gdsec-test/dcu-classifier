@@ -1,5 +1,7 @@
+import gzip
 import logging
 import requests
+import StringIO
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup as bs
 
@@ -79,7 +81,19 @@ class SitemapParser:
             message = 'Bad status code "{}" while getting sitemap file {}'.format(r.status_code, uri)
             self._logger.warning(message)
             return []
-        parser = bs(r.text, 'lxml')
+
+        # Are we working with a gzipped file?
+        if 'gzip' in r.headers.get('Content-Type', None):
+            try:
+                gzipper = gzip.GzipFile(fileobj=StringIO.StringIO(r.content))
+                xml = gzipper.read()
+            except Exception as e:
+                self._logger.error('Unable to parse file {}: {}'.format(uri, e.message))
+                return []
+        else:
+            xml = r.content
+
+        parser = bs(xml, 'lxml')
 
         # Check to see if uri is a sitemap-of-sitemaps.  If so, start
         #  recursive calls to this method

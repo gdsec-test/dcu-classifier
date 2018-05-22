@@ -1,4 +1,4 @@
-from nose.tools import assert_equals, assert_false, assert_true, assert_is_none
+from nose.tools import assert_equals, assert_false, assert_true
 from mock import patch
 from datetime import timedelta
 from service.parsers.parse_sitemap import SitemapParser
@@ -7,12 +7,15 @@ from service.parsers.parse_sitemap import SitemapParser
 # This method will be used by the mock to replace requests.get
 def mocked_requests_get(*args, **kwargs):
     class MockResponse:
-        def __init__(self, file_content, status_code):
-            self.text = file_content
-            self.status_code = status_code
+        XML = {"Content-Type": "application/xml"}
+        GZIP = {"Content-Type": "gzip"}
 
-        def json(self):
-            return self.text
+        def __init__(self, file_content, status_code, is_gzipped=False):
+            self.content = file_content
+            self.status_code = status_code
+            self.headers = self.XML
+            if is_gzipped:
+                self.headers = self.GZIP
 
     sitemap_1_content = """
     <?xml version="1.0" encoding="UTF-8"?>
@@ -103,6 +106,9 @@ def mocked_requests_get(*args, **kwargs):
     </urlset>
     """
 
+    with open('files/sitemap.xml.gz', 'r') as myfile:
+        sitemap_gzip_1_content = myfile.read()
+
     if args[0] == 'http://example.com/sitemap1.xml':
         return MockResponse(sitemap_1_content, 200)
     elif args[0] == 'http://example.com/sitemap2.xml':
@@ -113,6 +119,8 @@ def mocked_requests_get(*args, **kwargs):
         return MockResponse(sitemap_4_content, 200)
     elif args[0] == 'http://example.com/sitemap5.xml':
         return MockResponse(sitemap_5_content, 200)
+    elif args[0] == 'http://example.com/sitemap1.xml.gz':
+        return MockResponse(sitemap_gzip_1_content, 200, True)
     return MockResponse(None, 404)
 
 
@@ -122,12 +130,27 @@ class TestSitemapParser():
     SITEMAP_URL_BAD = 'http://example.com/unknown_file.xml'
     SITEMAP_URL_GOOD_3 = 'http://example.com/sitemap3.xml'
     SITEMAP_URL_GOOD_4 = 'http://example.com/sitemap4.xml'
+    SITEMAP_GZIP_URL_GOOD = 'http://example.com/sitemap1.xml.gz'
     EXPECTED_URL = 'http://www.example.com/catalog?item=12&desc=vacation_hawaii'
 
     def setUp(self):
         self._parser = SitemapParser(self.DAYS_TO_GO_BACK)
         self._todays_date = self._parser.TODAY.strftime(self._parser.DATE_FORMAT)
         self._two_days_ago = (self._parser.TODAY - timedelta(2)).strftime(self._parser.DATE_FORMAT)
+
+    @patch('requests.get', side_effect=mocked_requests_get)
+    def test_get_urls_from_web_gzip_pass(self, mock_get):
+        """
+        Reads in a gzipped sitemap file from URL, gunzips it, parses the content and passes.
+        There are 3 urls that have an old date and 2 urls that have no date, so we only
+        expect to parse the 2 urls with no date
+        :param mock_get:
+        :return:
+        """
+        count = 0
+        for url in self._parser.get_urls_from_web(self.SITEMAP_GZIP_URL_GOOD):
+            count += 1
+        assert_equals(count, 2)
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_sitemap_pass(self, mock_get):

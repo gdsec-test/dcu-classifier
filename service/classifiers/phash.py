@@ -1,16 +1,17 @@
 import io
 import logging
 import math
-import imagehash
-
 from collections import defaultdict
+from datetime import datetime
+
+import imagehash
 from PIL import Image
 from bson.objectid import ObjectId
-from pymongo import ReturnDocument
 from dcdatabase.mongohelper import MongoHelper
+from pymongo import ReturnDocument
 
-from service.utils.urihelper import URIHelper
 from service.classifiers.interface import Classifier
+from service.utils.urihelper import URIHelper
 
 
 class PHash(Classifier):
@@ -197,7 +198,8 @@ class PHash(Classifier):
                         'valid': 'yes',
                         'type': abuse_type,
                         'target': target,
-                        'imageid': ObjectId(imageid)
+                        'imageid': ObjectId(imageid),
+                        'timestamp': datetime.utcnow()
                     }
                 },
                 upsert=True,

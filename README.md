@@ -23,11 +23,17 @@ If you also wish to run test suites, install the test dependencies:
 pip install -r test_requirements.txt
 ```
 
-## Building
-This section is pending the creation of docker files
+ ## Building
+ Building a local Docker image for the respective development environments can be achieved by
+ ```
+ make [dev, ote, prod]
+ ```
 
-## Deploying
-This section is pending the creation of docker files
+ ## Deploying
+ Deploying the Docker image to Kubernetes can be achieved via
+ ```
+ make [dev, ote, prod]-deploy
+ ```
 
 ## Testing
 To run all tests, run the following from within the tests/ directory

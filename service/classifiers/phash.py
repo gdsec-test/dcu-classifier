@@ -215,7 +215,7 @@ class PHash(Classifier):
         :return:
         """
         for doc in self._mongo.find_incidents(
-                {'valid': 'yes',
+                {'valid': 'yes', 'validatedBy': {'$exists': True},
                  '$or': [{
                      'chunk1': str(hash_val)[0:4]
                  }, {

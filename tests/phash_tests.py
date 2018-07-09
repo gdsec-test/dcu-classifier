@@ -54,7 +54,9 @@ class TestPhash:
             "count": 1
         }])
 
-    def test_phash_classify_match(self):
+    @patch.object(PHash, '_store_successful_classification')
+    def test_phash_classify_match(self, store_successful_classification):
+        store_successful_classification.return_value = None
         self._phash._validate = Mock(return_value=return_bytes('../tests/images/phash_match.png'))
         data = self._phash.classify('some url')
         assert_equal(data.get('type'), 'PHISHING')
@@ -68,24 +70,32 @@ class TestPhash:
         assert_equal(data.get('confidence'), 0.0)
         assert_equal(data.get('target'), None)
 
-    def test_phash_classify_partial_match(self):
+    @patch.object(PHash, '_store_successful_classification')
+    def test_phash_classify_partial_match(self, store_successful_classification):
+        store_successful_classification.return_value = None
         self._phash._validate = Mock(return_value=return_bytes('../tests/images/netflix_match.png'))
         data = self._phash.classify('some url')
         assert_equal(data.get('type'), 'PHISHING')
         assert_equal(round(data.get('confidence'), 4), 0.95)
         assert_equal(data.get('target'), 'netflix')
 
+    @patch.object(MongoHelper, 'update_file_metadata')
     @patch.object(MongoHelper, 'get_file')
-    def test_phash_classify_image_id_match(self, mongo_get):
+    def test_phash_classify_image_id_match(self, mongo_get, update_file_metadata):
+        update_file_metadata.return_value = None
         mongo_get.return_value = return_bytes('../tests/images/phash_match.png')
+
         data = self._phash.classify('5a6f6feefec7ed000f587c13', url=False)
         assert_equal(data.get('type'), 'PHISHING')
         assert_equal(round(data.get('confidence'), 4), 1.0)
         assert_equal(data.get('target'), 'amazon')
 
+    @patch.object(MongoHelper, 'update_file_metadata')
     @patch.object(MongoHelper, 'get_file')
-    def test_phash_classify_image_id_match_bad_confidence(self, mongo_get):
+    def test_phash_classify_image_id_match_bad_confidence(self, mongo_get, update_file_metadata):
+        update_file_metadata.return_value = None
         mongo_get.return_value = return_bytes('../tests/images/phash_match.png')
+
         data = self._phash.classify('5a6f6feefec7ed000f587c13', url=False, confidence=0.0)
         assert_equal(data.get('type'), 'PHISHING')
         assert_equal(round(data.get('confidence'), 4), 1.0)
@@ -101,9 +111,12 @@ class TestPhash:
         assert_equal(data.get('confidence'), 0.0)
         assert_equal(data.get('target'), None)
 
+    @patch.object(MongoHelper, 'update_file_metadata')
     @patch.object(MongoHelper, 'get_file')
-    def test_phash_classify_image_id_partial_match(self, mongo_get):
+    def test_phash_classify_image_id_partial_match(self, mongo_get, update_file_metadata):
+        update_file_metadata.return_value = None
         mongo_get.return_value = return_bytes('../tests/images/netflix_match.png')
+
         data = self._phash.classify('5a6f6feefec7ed000f587c13', url=False)
         assert_equal(data.get('type'), 'PHISHING')
         assert_equal(round(data.get('confidence'), 4), 0.95)
@@ -119,13 +132,17 @@ class TestPhash:
         assert_equal(data.get('confidence'), 0.0)
         assert_equal(data.get('target'), None)
 
-    def test_add_classification_success(self):
+    @patch.object(MongoHelper, 'update_file_metadata')
+    def test_add_classification_success(self, update_file_metadata):
+        update_file_metadata.return_value = None
         self._phash._mongo.get_file = Mock(return_value=('some file', 'some_bytes'))
         self._phash._get_image_hash = Mock(return_value='aaaabbbbccccdddd')
         iid = self._phash.add_classification('5a6f6feefec7ed000f587c13', 'PHISHING', 'amazon')
         assert_true(iid is not None)
 
-    def test_add_classification_exists(self):
+    @patch.object(MongoHelper, 'update_file_metadata')
+    def test_add_classification_exists(self, update_file_metadata):
+        update_file_metadata.return_value = None
         self._phash._mongo.get_file = Mock(return_value=('blah', return_bytes('../tests/images/phash_match.png')[1]))
         success, reason = self._phash.add_classification('5a6f6feefec7ed000f587c13', 'MALWARE', 'netflix')
         obj = self._phash._mongo._collection.find_one({

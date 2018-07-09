@@ -54,7 +54,6 @@ class PHash(Classifier):
         results = self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
         self._logger.info('phash.classify classified {} with resultset {}'.format(candidate, results))
         return results
-#        return self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
 
     def _classify_uri(self, uri, confidence):
         """
@@ -72,7 +71,21 @@ class PHash(Classifier):
         hash_candidate = self._get_image_hash(io.BytesIO(screenshot))
         self._logger.info('_classify_uri got uri {} ; hash candidate is {}'.format(uri, hash_candidate))
         doc, certainty = self._find_match(hash_candidate, confidence)
+
+        if certainty:  # Store on any certainty != 0 because client may take action on varying certainties
+            self._store_successful_classification(screenshot, uri)
+
         return PHash._create_response(uri, doc, certainty)
+
+    def _store_successful_classification(self, screenshot, uri):
+        screenshot_id = None
+        try:
+            screenshot_id = self._mongo.save_file(screenshot, filename=uri, content='image/png',
+                                                  metadata=dict(persist=True))
+        except Exception as e:
+            self._logger.error("Error saving screenshot for uri {} : {}".format(uri, e.message))
+        finally:
+            return screenshot_id
 
     def _classify_image_id(self, imageid, confidence):
         """
@@ -88,6 +101,10 @@ class PHash(Classifier):
             self._logger.error('Unable to find image {}'.format(imageid))
         image_hash = self._get_image_hash(io.BytesIO(image))
         doc, certainty = self._find_match(image_hash, confidence)
+
+        if certainty:  # Store on any certainty != 0 because client may take action on varying certainties
+            self._mongo.update_file_metadata(ObjectId(imageid), dict(persist=True))  # ensure this image is persisted
+
         return PHash._create_response(imageid, doc, certainty)
 
     def _find_match(self, hash_candidate, min_confidence):
@@ -205,6 +222,7 @@ class PHash(Classifier):
                 upsert=True,
                 return_document=ReturnDocument.AFTER
         ):
+            self._mongo.update_file_metadata(ObjectId(imageid), dict(persist=True))  # ensure this image is persisted
             return True, ''
         return False, 'Unable to add or update DB for {}'.format(imageid)
 

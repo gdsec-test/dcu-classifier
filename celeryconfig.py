@@ -17,7 +17,6 @@ class CeleryConfig:
     CELERY_SEND_EVENTS = False
     CELERY_TRACK_STARTED = True
     CELERYD_CONCURRENCY = 2
-    CELERY_TASK_RESULT_EXPIRES = 86400  # One day in seconds
 
     @staticmethod
     def _getqueues(exchange):
@@ -35,11 +34,11 @@ class CeleryConfig:
         return (
             Queue(queue_modifier + 'scan_tasks', exchange=Exchange(exchange, type='topic'),
                   routing_key='scan.request'),
-            Queue('celery', Exchange('celery'), routing_key='celery')  # Listen to celery queue to run db cleanup
         )
 
     def __init__(self, app_settings):
-        self.BROKER_PASS = urllib.quote(os.getenv('BROKER_PASS', 'password'))
+        self.BROKER_PASS = os.getenv('BROKER_PASS', 'password')
+        self.BROKER_PASS = urllib.quote(self.BROKER_PASS)
         self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
         self.CELERY_RESULT_BACKEND = app_settings.DBURL
         self.CELERY_MONGODB_BACKEND_SETTINGS = {

@@ -46,9 +46,9 @@ class PHash(Classifier):
             }
         }
         """
-        if (confidence <= 0.75):
+        if confidence <= 0.75:
             confidence = 0.75
-        if (confidence >= 1.0):
+        if confidence >= 1.0:
             confidence = 1.0
 
         results = self._classify_image_id(candidate, confidence) if not url else self._classify_uri(candidate, confidence)
@@ -116,7 +116,7 @@ class PHash(Classifier):
         :return Tuple: dict of type/target, and confidence rating
         """
         if not hash_candidate:
-            return (None, None)
+            return None, None
         # Initialize bucket sets for confidence, possible targets, and abuse types
         # allowing for multiple buckets based on malicious type
         # i.e.: target_buckets['anything'] becomes e.g. [0, 0, 0, 0, 0] default
@@ -263,7 +263,7 @@ class PHash(Classifier):
             return 0
 
         confidence = ((confidence_over / confidence_under) * self._num_buckets) + min_confidence
-        return (confidence / 100.0)
+        return confidence / 100.0
 
     @staticmethod
     def _create_response(candidate, matching_doc, certainty):
@@ -301,12 +301,12 @@ class PHash(Classifier):
         """
         if not self._urihelper.resolves(url, timeout=5):
             self._logger.error('URL:{} does not resolve'.format(url))
-            return (False, None)
+            return False, None
         screenshot, _ = self._urihelper.get_site_data(url, timeout=10)
         if screenshot is None:
             self._logger.error('Unable to obtain screenshot for {}'.format(url))
-            return (False, None)
-        return (True, screenshot)
+            return False, None
+        return True, screenshot
 
     @staticmethod
     def _confidence(hash1, hash2):

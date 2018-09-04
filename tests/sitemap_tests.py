@@ -124,7 +124,7 @@ def mocked_requests_get(*args, **kwargs):
     return MockResponse(None, 404)
 
 
-class TestSitemapParser():
+class TestSitemapParser:
     DAYS_TO_GO_BACK = 1
     SITEMAP_URL_GOOD = 'http://example.com/sitemap1.xml'
     SITEMAP_URL_BAD = 'http://example.com/unknown_file.xml'

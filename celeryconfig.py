@@ -21,22 +21,33 @@ class CeleryConfig:
 
     @staticmethod
     def _getqueues(exchange):
-        env = os.getenv('sysenv')
+        env = os.getenv('sysenv', 'dev')
+
+        queues = ()
         queue_modifier = ''
         if env != 'prod':
             queue_modifier = env
+        else:
+            ''' If this is the prod environment, listen to celery queue to run db cleanup.
+            This code should be temporary once we switch over to environment based vhosts. 6 Sept 2018.
+            '''
+            queues = (
+                Queue('celery', Exchange('celery'), routing_key='celery'),)  # Listen to celery queue to run db cleanup
+
         if os.getenv('WORKER_MODE') == 'classify':
-            return (
+            queues += (
                 Queue(queue_modifier + 'fingerprint_tasks', exchange=Exchange(exchange, type='topic'),
                       routing_key='fingerprint.request'),
                 Queue(queue_modifier + 'classify_tasks', exchange=Exchange(exchange, type='topic'),
-                      routing_key='classify.request'),
+                      routing_key='classify.request')
             )
-        return (
-            Queue(queue_modifier + 'scan_tasks', exchange=Exchange(exchange, type='topic'),
-                  routing_key='scan.request'),
-            Queue('celery', Exchange('celery'), routing_key='celery')  # Listen to celery queue to run db cleanup
-        )
+        else:
+            queues += (
+                Queue(queue_modifier + 'scan_tasks', exchange=Exchange(exchange, type='topic'),
+                      routing_key='scan.request'),
+            )
+
+        return queues
 
     def __init__(self, app_settings):
         self.BROKER_PASS = urllib.quote(os.getenv('BROKER_PASS', 'password'))

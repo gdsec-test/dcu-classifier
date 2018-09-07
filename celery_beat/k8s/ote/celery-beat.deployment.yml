@@ -26,7 +26,7 @@ spec:
           - name: BUILD_DATE
             value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
           - name: sysenv
-            value: dev
+            value: ote
           - name: BROKER_PASS
             valueFrom:
               secretKeyRef:

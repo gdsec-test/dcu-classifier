@@ -1,15 +1,16 @@
-import os
 import logging.config
-import yaml
-import requests
+import os
 
+import requests
+import yaml
 from celery import Celery, Task
-from celeryconfig import CeleryConfig
 from celery.utils.log import get_task_logger
 from requests.exceptions import RequestException
-from settings import config_by_name
+
+from celeryconfig import CeleryConfig
 from service.classifiers.phash import PHash
 from service.parsers.parse_sitemap import SitemapParser
+from settings import config_by_name
 
 env = os.getenv('sysenv', 'dev')
 config = config_by_name[env]()
@@ -50,9 +51,9 @@ class ClassifyTask(Task):
         pass
 
     def _scanuri(self, uri):
-        results = self.phash.classify(uri, url=True, confidence=0.90)
+        results = self.phash.classify(uri, url=True, confidence=0.95)
         self._logger.info('Scanned uri {} and got results: {}'.format(uri, results))
-        if results.get('confidence', 0.0) >= 0.90:
+        if results.get('confidence', 0.0) >= 0.95:
             try:
                 headers = {'Authorization': config.API_JWT}
                 payload = {

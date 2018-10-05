@@ -3,43 +3,44 @@ DCU Classifier
 Takes in classify/scan/fingerprint requests from the DCU Auto Abuse API in order to process requests asynchronously.
 
 ## Cloning
-To clone the repo, use git, and set up a python virtual env project:
-
+To clone the repository via SSH perform the following
 ```
-mkproject dcu-classifier
 git clone git@github.secureserver.net:ITSecurity/dcu-classifier.git
-cd dcu-classifier
 ```
+
+It is recommended that you clone this project into a pyvirtualenv or equivalent virtual environment.
 
 ## Installing Dependencies
-Install private pips and main project dependencies:
+To install all dependencies for development and testing simply run `make`.
 
+## Building
+Building a local Docker image for the respective development environments can be achieved by
 ```
-pip install -r private_pips.txt
-pip install -r requirements.txt
-
-If you also wish to run test suites, install the test dependencies:
-
-pip install -r test_requirements.txt
+make [dev, ote, prod]
 ```
 
- ## Building
- Building a local Docker image for the respective development environments can be achieved by
- ```
- make [dev, ote, prod]
- ```
-
- ## Deploying
- Deploying the Docker image to Kubernetes can be achieved via
- ```
- make [dev, ote, prod]-deploy
- ```
+## Deploying
+Deploying the Docker image to Kubernetes can be achieved via
+```
+make [dev, ote, prod]-deploy
+```
+You must also ensure you have the proper push permissions to Artifactory or you may experience a `Forbidden` message.
 
 ## Testing
-To run all tests, run the following from within the tests/ directory
+```
+make test     # runs all unit tests
+make testcov  # runs tests with coverage
+```
+
+## Style and Standards
+All deploys must pass Flake8 linting and all unit tests which are baked into the [Makefile](Makfile).
+
+There are a few commands that might be useful to ensure consistent Python style:
 
 ```
-nosetests --with-coverage --cover-package=service
+make flake8  # Runs the Flake8 linter
+make isort   # Sorts all imports
+make tools   # Runs both Flake8 and isort
 ```
 
 ## Built With

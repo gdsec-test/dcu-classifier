@@ -1,7 +1,9 @@
 from collections import namedtuple
+
 import requests
 from mock import patch
-from nose.tools import assert_true, assert_false
+from nose.tools import assert_false, assert_true
+
 from service.utils.urihelper import URIHelper
 
 

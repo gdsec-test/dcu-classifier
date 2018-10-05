@@ -5,9 +5,9 @@ from collections import defaultdict
 from datetime import datetime
 
 import imagehash
-from PIL import Image
 from bson.objectid import ObjectId
 from dcdatabase.mongohelper import MongoHelper
+from PIL import Image
 from pymongo import ReturnDocument
 
 from service.classifiers.interface import Classifier

@@ -1,5 +1,6 @@
 import logging
 import signal
+
 from requests import sessions
 from selenium import webdriver
 

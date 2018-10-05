@@ -1,8 +1,9 @@
 import gzip
 import logging
-import requests
 import StringIO
 from datetime import datetime, timedelta
+
+import requests
 from bs4 import BeautifulSoup as bs
 
 

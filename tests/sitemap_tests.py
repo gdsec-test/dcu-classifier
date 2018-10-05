@@ -1,6 +1,8 @@
-from nose.tools import assert_equals, assert_false, assert_true
-from mock import patch
 from datetime import timedelta
+
+from mock import patch
+from nose.tools import assert_equals, assert_false, assert_true
+
 from service.parsers.parse_sitemap import SitemapParser
 
 
@@ -106,7 +108,7 @@ def mocked_requests_get(*args, **kwargs):
     </urlset>
     """
 
-    with open('files/sitemap.xml.gz', 'r') as myfile:
+    with open('tests/files/sitemap.xml.gz', 'r') as myfile:
         sitemap_gzip_1_content = myfile.read()
 
     if args[0] == 'http://example.com/sitemap1.xml':

@@ -64,7 +64,6 @@ class PHash(Classifier):
         """
         valid, screenshot = self._validate(uri)
         if not valid:
-            self._logger.warning('_classify_uri got {} as an invalid uri'.format(uri))
             ret_dict = PHash._get_response_dict()
             ret_dict['candidate'] = uri
             return ret_dict

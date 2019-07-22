@@ -1,4 +1,4 @@
-REPONAME=infosec-dcu/dcu-classifier
+REPONAME=digital-crimes/dcu-classifier
 BUILDROOT=$(HOME)/dockerbuild/$(REPONAME)
 DOCKERREPO=docker-dcu-local.artifactory.secureserver.net/dcu-classifier
 DATE=$(shell date)

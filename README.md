@@ -5,7 +5,7 @@ Takes in classify/scan/fingerprint requests from the DCU Auto Abuse API in order
 ## Cloning
 To clone the repository via SSH perform the following
 ```
-git clone git@github.secureserver.net:ITSecurity/dcu-classifier.git
+git clone git@github.secureserver.net:digital-crimes/dcu-classifier.git
 ```
 
 It is recommended that you clone this project into a pyvirtualenv or equivalent virtual environment.

@@ -105,8 +105,8 @@ ote-deploy: ote
 dev-deploy: dev
 	@echo "----- deploying $(REPONAME) dev -----"
 	docker push $(DOCKERREPO):dev
-	kubectl --context dev apply -f $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yml --record
-	kubectl --context dev apply -f $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yml --record
+	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yml --record
+	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yml --record
 
 .PHONY: clean
 clean:

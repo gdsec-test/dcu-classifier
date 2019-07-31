@@ -1,4 +1,4 @@
-REPONAME=infosec-dcu/classifier-celery-beat
+REPONAME=digital-crimes/classifier-celery-beat
 BUILDROOT=$(HOME)/dockerbuild/$(REPONAME)
 DOCKERREPO=docker-dcu-local.artifactory.secureserver.net/classifier-celery-beat
 DATE=$(shell date)
@@ -57,7 +57,7 @@ ote-deploy: ote
 dev-deploy: dev
 	@echo "----- deploying $(REPONAME) dev -----"
 	docker push $(DOCKERREPO):dev
-	kubectl --context dev apply -f $(BUILDROOT)/k8s/dev/celery-beat.deployment.yml --record
+	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/celery-beat.deployment.yml --record
 
 .PHONY: clean
 clean:

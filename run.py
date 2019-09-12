@@ -20,7 +20,7 @@ celery.config_from_object(CeleryConfig(config))
 logger = get_task_logger('celery.tasks')
 
 # setup logging
-path = 'logging.yml'
+path = 'logging.yaml'
 value = os.getenv('LOG_CFG', None)
 if value:
     path = value

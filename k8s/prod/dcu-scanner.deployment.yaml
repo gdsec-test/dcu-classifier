@@ -41,7 +41,7 @@ spec:
             - name: ML_API_CERT
               value: /mlapicerts/tls.crt
             - name: ML_API_KEY
-            qvalue: /mlapicerts/tls.key
+              value: /mlapicerts/tls.key
             - name: BROKER_PASS
               valueFrom:
                 secretKeyRef:

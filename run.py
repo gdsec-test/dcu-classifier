@@ -8,7 +8,7 @@ from celery.utils.log import get_task_logger
 from requests.exceptions import RequestException
 
 from celeryconfig import CeleryConfig
-from service.classifiers.phash import PHash
+from service.classifiers.ml_api import MLAPI
 from service.parsers.parse_sitemap import SitemapParser
 from settings import config_by_name
 
@@ -32,34 +32,48 @@ else:
     logging.basicConfig(level=logging.INFO)
 logging.raiseExceptions = True
 
+if not config.ML_API_CERT or not config.ML_API_KEY:
+    message = 'Missing ML_API certificate or key'
+    logger.fatal(message)
+    raise ValueError(message)
+
 
 class ClassifyTask(Task):
     """
     Base class for classification tasks
     """
+    MIN_FRAUD_SCORE_TO_CREATE_TICKET = 0.95
 
     def __init__(self):
-        self._phash = PHash(config)
+        self._ml_api = MLAPI(config)
         self._parser = SitemapParser(config.MAX_AGE)
         self._logger = logging.getLogger(__name__)
+        self._default_fraud_score = config.DEFAULT_FRAUD_SCORE
 
     @property
-    def phash(self):
-        return self._phash
+    def ml_api(self):
+        return self._ml_api
 
     def run(self, *args, **kwargs):
         pass
 
-    def _scanuri(self, uri):
-        results = self.phash.classify(uri, url=True, confidence=0.95)
-        self._logger.info('Scanned uri {} and got results: {}'.format(uri, results))
-        if results.get('confidence', 0.0) >= 0.95:
+    def _scan_uri(self, uri):
+        """
+        Calls the ML API with a URI to obtain a fraud score
+        :param uri: string representing a URI
+        :return: None
+        """
+        fraud_score = self.ml_api.get_score(uri)
+        self._logger.info('URI {} assigned fraud_score: {}'.format(uri, fraud_score))
+        if fraud_score >= self.MIN_FRAUD_SCORE_TO_CREATE_TICKET:
             try:
                 headers = {'Authorization': config.API_JWT}
                 payload = {
-                    'type': results.get('type'),
+                    'type': 'PHISHING',
                     'source': uri,
-                    'target': results.get('target', '')
+                    'metadata': {
+                        'fraud_score': fraud_score
+                    }
                 }
                 if env == 'dev':  # safeguard; headers contains sensitive info
                     self._logger.info('Sending POST to {} with payload {} and headers {}'.format(config.API_URL,
@@ -77,60 +91,48 @@ class ClassifyTask(Task):
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')
 def classify(self, data):
     """
-    Classify the given uri or image
-    :param self:
-    :param data:
-    :return: dict outlining results of classification
+    Return the fraud score for the given uri
+    :param self: object reference to ClassifyTask
+    :param data: dict
+    :return: dict outlining results of classification. Don't include fraud_score if -1
     """
-    image_id = data.get('image_id')
-    uri = data.get('uri')
-    if image_id:
-        results = self.phash.classify(image_id, url=False, confidence=0.75)
-    else:
-        results = self.phash.classify(uri, url=True, confidence=0.75)
-    results['id'] = self.request.id
-    return results
+    results_dict = {
+        'candidate': data.get('uri'),
+        'id': self.request.id
+    }
+    fraud_score = self.ml_api.get_score(data.get('uri'))
+    if fraud_score > self._default_fraud_score:
+        results_dict['confidence'] = fraud_score
+    return results_dict
 
 
 @celery.task(bind=True, base=ClassifyTask, name='scan.request')
 def scan(self, data):
     """
-    Scan the given uri or image
-    :param self:
-    :param data:
+    Scan the given uri, and if the fraud_score meets a threshold, it will submit a ticket to the Abuse API
+    :param self: object reference to ClassifyTask
+    :param data: dict
     :return: dict outlining details of the scan task
     """
     uri = data.get('uri')
     if data.get('sitemap'):
         try:
-            ''' At this point in time we've decided to not enumerate all URLs in the sitemap and only examine the
+            """
+            At this point in time we've decided to not enumerate all URLs in the sitemap and only examine the
             top level site. This serves as a small stop gap so we can address performance issues as well as more
             specifically target the intentional phishing that may be present in GoCentral. 31 Aug 2018.
-            '''
-            # for url in self._parser.get_urls_from_web(uri):
-            #     self._scanuri(url)
+            """
             uri = uri.replace('sitemap.xml', '')
-            self._scanuri(uri)
+            self._scan_uri(uri)
         except RequestException as e:
             logger.error('Error fetching sitemap for {}: {}'.format(uri, e.message))
     else:
-        self._scanuri(uri)
+        self._scan_uri(uri)
     return {
         'id': self.request.id,
         'uri': uri,
         'sitemap': data.get('sitemap', False)
     }
-
-
-@celery.task(bind=True, base=ClassifyTask, name='fingerprint.request', ignore_result=True)
-def add_classification(self, data):
-    """
-    Fingerprint the given image for use in future classification requests
-    :param self:
-    :param data:
-    :return:
-    """
-    return self.phash.add_classification(data.get('image_id'), data.get('type'), data.get('target'))
 
 
 @celery.task(ignore_result=True)

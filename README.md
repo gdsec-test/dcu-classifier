@@ -1,6 +1,12 @@
-DCU Classifier
+# DCU Classifier
 
-Takes in classify/scan/fingerprint requests from the DCU Auto Abuse API in order to process requests asynchronously.
+Takes in classify/scan requests from the DCU Auto Abuse API in order to process requests asynchronously.
+
+### dcu-classifier
+This service is used to determine a fraud_score given a url, using the ML API predict/dcu_fraud_html endpoint.
+
+### dcu-scanner
+This service is used to determine a fraud_score given a url, using the ML API predict/dcu_fraud_html endpoint.  If the fraud score exceeds a specified threshold, it will submit a ticket to the Abuse API
 
 ## Cloning
 To clone the repository via SSH perform the following
@@ -54,6 +60,9 @@ If you would like to run this locally, you will need to specify the following en
 2. `DB_PASS` (Password for MongoDB)
 3. `BROKER_PASS` (Password for Celery)
 4. `WORKER_MODE` (needs to be `classify` or `scan`)
+5. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
+6. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
+7. `API_JWT` (JWT for user who can create Abuse API tickets)
 
 You may also need to configure settings.py and celeryconfig.py to specify additional MongoDB and Celery settings.
 

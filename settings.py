@@ -1,10 +1,12 @@
 import os
 import urllib
 
+TEST = 'test'
+
 
 class AppConfig(object):
     DBURL = 'localhost'
-    DB = 'test'
+    DB = TEST
     DB_PORT = 27017
     DB_USER = 'dbuser'
     DB_HOST = 'localhost'
@@ -15,11 +17,17 @@ class AppConfig(object):
     # the spacing between each bucket is determined by the minimum confidence requested
     MAX_AGE = 1  # Maximum number of days old a URL can be for sitemap extraction
 
+    # Machine Learning API
+    ML_API = 'https://shopperml.godaddy.com/v1/predict/dcu_fraud_html/'
+    DEFAULT_FRAUD_SCORE = -1.0
+
     def __init__(self):
         self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify'  # should be either classify or scan
         self.API_JWT = 'sso-key {}:{}'.format(os.getenv('API_KEY'), os.getenv('API_SECRET'))
+        self.ML_API_CERT = os.getenv('ML_API_CERT')
+        self.ML_API_KEY = os.getenv('ML_API_KEY')
 
 
 class ProductionAppConfig(AppConfig):
@@ -51,13 +59,19 @@ class DevelopmentAppConfig(AppConfig):
     EXCHANGE = 'devclassifier'
     API_URL = 'https://api.dev-godaddy.com/v1/abuse/tickets'
 
+    ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
+
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()
 
 
 class TestingConfig(AppConfig):
     DBURL = 'mongodb://localhost/devphishstory'
-    COLLECTION = 'test'
+    COLLECTION = TEST
+
+    ML_API = TEST
+    ML_API_CERT = TEST
+    ML_API_KEY = TEST
 
 
 config_by_name = {'dev': DevelopmentAppConfig,

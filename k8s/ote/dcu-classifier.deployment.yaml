@@ -32,19 +32,31 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           env:
-          - name: BUILD_DATE
-            value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
-          - name: sysenv
-            value: ote
-          - name: WORKER_MODE
-            value: classify
-          - name: BROKER_PASS
-            valueFrom:
-              secretKeyRef:
-                name: amqp-dcu-classifier
-                key: password
-          - name: DB_PASS
-            valueFrom:
-              secretKeyRef:
-                name: db-dcu-classifier
-                key: password
+            - name: BUILD_DATE
+              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
+            - name: sysenv
+              value: ote
+            - name: WORKER_MODE
+              value: classify
+            - name: ML_API_CERT
+              value: /mlapicerts/tls.crt
+            - name: ML_API_KEY
+              value: /mlapicerts/tls.key
+            - name: BROKER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: amqp-dcu-classifier
+                  key: password
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-dcu-classifier
+                  key: password
+          volumeMounts:
+            - name: tls-files-api
+              mountPath: /mlapicerts
+              readOnly: true
+      volumes:
+        - name: tls-files-api
+          secret:
+            secretName: tls-mlapi-api

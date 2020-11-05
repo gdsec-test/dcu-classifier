@@ -2,12 +2,41 @@ from collections import namedtuple
 
 import requests
 from mock import patch
-from nose.tools import assert_false, assert_true
+from nose.tools import assert_equal, assert_false, assert_is_none, assert_true
+from selenium import webdriver
 
 from service.utils.urihelper import URIHelper
 
+HTML = 'Some HTML'
+
+
+class MockPageSource:
+    def __init__(self, _page_source_return_val):
+        self._return_val = _page_source_return_val
+
+    def encode(self, _, __):
+        return self._return_val
+
+
+class MockPhantom:
+    def __init__(self, page_source_return_val):
+        self.page_source = MockPageSource(page_source_return_val)
+
+    def set_page_load_timeout(self, _):
+        pass
+
+    def get(self, _):
+        pass
+
+    def close(self):
+        pass
+
+    def quit(self):
+        pass
+
 
 class TestURIHelper:
+    URI = 'http://some.uri'
 
     @classmethod
     def setup(cls):
@@ -49,3 +78,11 @@ class TestURIHelper:
         status = dict(status_code=500, status_message='FAIL')
         mocked_method.return_value = namedtuple('struct', status.keys())(**status)
         assert_false(self._urihelper.resolves(self.test_url))
+
+    @patch.object(webdriver, 'PhantomJS', return_value=MockPhantom(None))
+    def test_get_site_data_no_sourcecode(self, mock_phantom):
+        assert_is_none(self._urihelper.get_site_data(self.URI))
+
+    @patch.object(webdriver, 'PhantomJS', return_value=MockPhantom(HTML))
+    def test_get_site_data_valid_sourcecode(self, mock_phantom):
+        assert_equal(self._urihelper.get_site_data(self.URI), HTML)

@@ -6,6 +6,7 @@ from selenium import webdriver
 
 
 class URIHelper:
+    NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD = 3
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -34,26 +35,29 @@ class URIHelper:
 
     def get_site_data(self, url, timeout=10):
         """
-        Returns a tuple consisting of screenshot, and sourcecode for the url in question
-        :param url:
-        :param timeout:
-        :return:
+        Returns the sourcecode string for the url provided
+        :param url: string
+        :param timeout: int value of page load timeout
+        :return: string of sourcecode
         """
-        data = (None, None)
-        try:
-            browser = webdriver.PhantomJS()
-            browser.set_page_load_timeout(timeout)
-            browser.get(url)
-            screenshot = browser.get_screenshot_as_png()
-            sourcecode = browser.page_source.encode('ascii', 'ignore')
-            data = (screenshot, sourcecode)
-            return data
-        except Exception as e:
-            self._logger.error("Error while taking snapshot and/or source code for {}: {}".format(url, e))
-        finally:
+        sourcecode = None
+        for i in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
+            browser = None
             try:
-                browser.service.process.send_signal(signal.SIGTERM)
-                browser.quit()
-            except Exception:
-                pass
-        return data
+                browser = webdriver.PhantomJS()
+                browser.set_page_load_timeout(timeout)
+                browser.get(url)
+                sourcecode = browser.page_source.encode('ascii', 'ignore')
+            except Exception as e:
+                self._logger.error("Error while taking snapshot and/or source code for {}: {}".format(url, e))
+            finally:
+                try:
+                    if browser:
+                        browser.service.process.send_signal(signal.SIGTERM)
+                        browser.close()
+                        browser.quit()
+                except Exception:
+                    pass
+            if sourcecode:
+                break
+        return sourcecode

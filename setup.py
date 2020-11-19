@@ -14,7 +14,7 @@ setup(
     version='1.0',
     author='DCU',
     author_email='dcueng@godaddy.com',
-    description='Deals with automated detection of abusive content using phash matching',
+    description='Deals with automated detection of abusive content using machine learning score',
     long_description=long_description,
     url='https://github.secureserver.net/digital-crimes/dcu-classifier',
     packages=find_packages(exclude=['tests']),

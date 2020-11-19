@@ -36,10 +36,8 @@ class CeleryConfig:
 
         if os.getenv('WORKER_MODE') == 'classify':
             queues += (
-                Queue(queue_modifier + 'fingerprint_tasks', exchange=Exchange(exchange, type='topic'),
-                      routing_key='fingerprint.request'),
                 Queue(queue_modifier + 'classify_tasks', exchange=Exchange(exchange, type='topic'),
-                      routing_key='classify.request')
+                      routing_key='classify.request'),
             )
         else:
             queues += (

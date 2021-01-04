@@ -1,5 +1,5 @@
 import os
-import urllib
+import urllib.parse
 
 from kombu import Exchange, Queue
 
@@ -48,7 +48,7 @@ class CeleryConfig:
         return queues
 
     def __init__(self, app_settings):
-        self.BROKER_PASS = urllib.quote(os.getenv('BROKER_PASS', 'password'))
+        self.BROKER_PASS = urllib.parse.quote(os.getenv('BROKER_PASS', 'password'))
         self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
         self.CELERY_RESULT_BACKEND = app_settings.DBURL
         self.CELERY_MONGODB_BACKEND_SETTINGS = {

@@ -1,6 +1,6 @@
 import gzip
+import io
 import logging
-import StringIO
 from datetime import datetime, timedelta
 
 import requests
@@ -75,8 +75,9 @@ class SitemapParser:
         """
         # Are we working with a gzipped file?
         if 'gzip' in request_object.headers.get('Content-Type'):
-            gzipper = gzip.GzipFile(fileobj=StringIO.StringIO(request_object.content))
+            gzipper = gzip.GzipFile(fileobj=io.BytesIO(request_object.content))
             xml = gzipper.read()
+            print(xml)
         else:
             xml = request_object.content
         return xml

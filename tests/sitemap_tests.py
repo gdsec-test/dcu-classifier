@@ -108,7 +108,7 @@ def mocked_requests_get(*args, **kwargs):
     </urlset>
     """
 
-    with open('tests/files/sitemap.xml.gz', 'rb') as myfile:
+    with open('tests/files/sitemap.xml.gz', 'r') as myfile:
         sitemap_gzip_1_content = myfile.read()
 
     if args[0] == 'http://example.com/sitemap1.xml':

@@ -19,7 +19,7 @@ class MockResponseGood(MockResponseBad):
     Constructor allows caller to specify class attributes.  Includes json() method
     """
     def __init__(self, **kwargs):
-        for k, v in list(kwargs.items()):
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     def json(self):

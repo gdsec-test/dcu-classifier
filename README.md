@@ -67,12 +67,12 @@ Environment variables for docker-compose:
 Changes to docker-compose.yml file:
 1. Replace `PATH_TO_YOUR_CERTS_DIRECTORY` with your local path to the `apiuser.cmap.int.dev-godaddy.com` crt and key files
 
-Run `docker-compose up -d` to run dcu-classifier, dcu-scanner, auto_abuse_id, rabbitmq and redis locally in a docker container.
-Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
-Run `docker logs -f dcu-classifier_dcu-classifier_1` to view the run logs for dcu-classifier
-Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
-Run `redis-cli` to interact with your local REDIS instance
-Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
+* Run `docker-compose up -d` to run dcu-classifier, dcu-scanner, auto_abuse_id, rabbitmq and redis locally in a docker container.
+* Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
+* Run `docker logs -f dcu-classifier_dcu-classifier_1` to view the run logs for dcu-classifier
+* Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
+* Run `redis-cli` to interact with your local REDIS instance
+* Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
 
 ### Debug dcu-classifier locally, running against docker-compose auto_abuse_id, rabbitmq, redis and dev mongo
 
@@ -81,11 +81,11 @@ REDIS is needed for running auto_abuse_id locally in a docker container.
 Environment variables for docker-compose:
 1. `DB_PASS` (Password for dev MongoDB)
 
-Run `docker-compose up -d auto-abuse-id` to run auto_abuse_id, rabbitmq and redis locally in a docker container.
-Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
-Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
-Run `redis-cli` to interact with your local REDIS instance
-Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
+* Run `docker-compose up -d auto-abuse-id` to run auto_abuse_id, rabbitmq and redis locally in a docker container.
+* Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
+* Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
+* Run `redis-cli` to interact with your local REDIS instance
+* Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
 
 Environment variables for debugging dcu-classifier (ie: PyCharm)
 1. `sysenv` Runtime env: `dev`

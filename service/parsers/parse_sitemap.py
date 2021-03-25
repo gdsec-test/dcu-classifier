@@ -1,7 +1,7 @@
 import gzip
 import logging
-import StringIO
 from datetime import datetime, timedelta
+from io import BytesIO
 
 import requests
 from bs4 import BeautifulSoup as bs
@@ -66,16 +66,17 @@ class SitemapParser:
             if change_date:
                 yield uri
 
-    def _extract_content_from_request_object(self, request_object):
+    @staticmethod
+    def _extract_content_from_request_object(request_object):
         """
         A method to extract the content given a request object, regardless if the
-        data is cleartext xml or gzipped
+        data is clear-text xml or gzipped
         :param request_object:
         :return:
         """
         # Are we working with a gzipped file?
         if 'gzip' in request_object.headers.get('Content-Type'):
-            gzipper = gzip.GzipFile(fileobj=StringIO.StringIO(request_object.content))
+            gzipper = gzip.GzipFile(fileobj=BytesIO(request_object.content))
             xml = gzipper.read()
         else:
             xml = request_object.content
@@ -100,9 +101,9 @@ class SitemapParser:
 
         # Extract the content given a request handle
         try:
-            xml = self._extract_content_from_request_object(r)
+            xml = SitemapParser._extract_content_from_request_object(r)
         except Exception as e:
-            self._logger.error('Unable to parse file {}: {}'.format(uri, e.message))
+            self._logger.error('Unable to parse file {}: {}'.format(uri, e))
             return []
 
         parser = bs(xml, 'lxml')

@@ -1,50 +1,36 @@
-# DCU-Classifier
-#
-#
+FROM python:3.7.10-slim as base
+LABEL MAINTAINER="dcueng@godaddy.com"
 
-FROM ubuntu:16.04
-MAINTAINER DCU ENG <DCUEng@godaddy.com>
+RUN addgroup dcu && adduser --disabled-password --disabled-login --no-create-home --ingroup dcu --system dcu
+RUN apt-get update && apt-get install -y gcc phantomjs
 
-RUN groupadd -r dcu && useradd -r -m -g dcu dcu
+RUN pip install -U pip
+COPY ./private_pips /tmp/private_pips
+RUN pip install --compile /tmp/private_pips/dcdatabase
 
-# apt-get installs
-RUN apt-get update && \
-    apt-get install -y build-essential \
-    fontconfig \
-    gcc \
-    libffi-dev \
-    libssl-dev \
-    python-dev \
-    python-pip \
-    curl
+FROM base as deliverable
 
-RUN cd /usr/local/share && \
-    curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 | tar xj && \
-    ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/bin/phantomjs
+RUN mkdir -p /app
+COPY ./run.py ./celeryconfig.py ./settings.py ./*.yaml ./health.sh /app/
 
-COPY ./run.py ./run.sh ./celeryconfig.py ./settings.py ./*.yaml ./health.sh /app/
-
+# Compile the Flask API
 COPY . /tmp
-
-# pip install private pips staged by Makefile
-RUN for entry in dcdatabase; \
-    do \
-    pip install --compile "/tmp/private_pips/$entry"; \
-    done
-
 RUN pip install --compile /tmp
 
 # cleanup
-RUN apt-get remove --purge -y build-essential \
-    curl \
-    gcc \
-    libffi-dev \
-    libssl-dev \
-    python-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp && \
-    chown -R dcu:dcu /app
+RUN apt-get remove -y gcc
+RUN rm -rf /tmp
 
+# Something to get PhantomJS to run without throwing errors
+RUN mkdir -p /tmp/runtime-dcu
+RUN chown -R dcu:dcu /tmp/runtime-dcu
+RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so.5
+
+# Fix permissions.
+RUN chown -R dcu:dcu /app
+
+USER dcu
 WORKDIR /app
+ENV QT_QPA_PLATFORM offscreen
 
-ENTRYPOINT ["/app/run.sh"]
+CMD ["/usr/local/bin/celery", "-A", "run", "worker", "-l", "INFO", "--without-heartbeat", "--without-gossip", "--without-mingle"]

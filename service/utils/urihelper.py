@@ -1,5 +1,6 @@
 import logging
 import signal
+from time import sleep
 
 from requests import sessions
 from selenium import webdriver
@@ -7,6 +8,7 @@ from selenium import webdriver
 
 class URIHelper:
     NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD = 3
+    EMPTY_HTML_PAGE = '<html><head></head><body></body></html>'.encode('ascii', 'ignore')
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -29,8 +31,7 @@ class URIHelper:
                 return status in ["406", "403"]
         except Exception as e:
             self._logger.error(
-                "Error in determining if url resolves {} : {}".format(
-                    url, e.message))
+                "Error in determining if url resolves {} : {}".format(url, e))
             return False
 
     def get_site_data(self, url, timeout=10):
@@ -41,23 +42,38 @@ class URIHelper:
         :return: string of sourcecode
         """
         sourcecode = None
-        for i in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
+        for _ in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
             browser = None
             try:
                 browser = webdriver.PhantomJS()
                 browser.set_page_load_timeout(timeout)
                 browser.get(url)
-                sourcecode = browser.page_source.encode('ascii', 'ignore')
+                sourcecode = self._backoff(browser)
             except Exception as e:
-                self._logger.error("Error while taking snapshot and/or source code for {}: {}".format(url, e))
+                self._logger.error("Error while scraping source code for {}: {}".format(url, e))
             finally:
                 try:
                     if browser:
                         browser.service.process.send_signal(signal.SIGTERM)
-                        browser.close()
                         browser.quit()
                 except Exception:
                     pass
             if sourcecode:
                 break
+        if isinstance(sourcecode, bytes):
+            sourcecode = sourcecode.decode()
+        return sourcecode
+
+    def _backoff(self, browser):
+        """
+        Returns the source code from the last request page of a selenium driver instance.
+        :param browser:
+        :return:
+        """
+        sourcecode = None
+        for i in range(5):
+            sourcecode = browser.page_source.encode('ascii', 'ignore')
+            if sourcecode != self.EMPTY_HTML_PAGE:
+                break
+            sleep(i)
         return sourcecode

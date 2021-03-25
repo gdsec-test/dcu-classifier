@@ -29,8 +29,10 @@ class MLAPI:
         fraud_score = self._default_fraud_score
 
         try:
+            self._logger.debug('Extracting source code from {}'.format(source))
             html = self._urihelper.get_site_data(source)
             if not html:
+                self._logger.debug('No source extracted')
                 return
             payload = {'html': html}
 

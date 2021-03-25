@@ -1,26 +1,26 @@
 import os
-import urllib
+from urllib.parse import quote
 
 from kombu import Exchange, Queue
 
 
 class CeleryConfig:
-    BROKER_TRANSPORT = 'pyamqp'
-    BROKER_USE_SSL = True
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_ACCEPT_CONTENT = ['json']
-    CELERY_IMPORTS = 'run'
-    CELERYD_HIJACK_ROOT_LOGGER = False
-    CELERY_ACKS_LATE = True
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_SEND_EVENTS = False
-    CELERY_TRACK_STARTED = True
-    CELERYD_CONCURRENCY = 2
-    CELERY_TASK_RESULT_EXPIRES = 86400  # One day in seconds
+    broker_transport = 'pyamqp'
+    broker_use_ssl = not os.getenv('DISABLESSL', False)  # True unless local docker-compose testing
+    task_serializer = 'json'
+    result_serializer = 'json'
+    accept_content = ['json']
+    imports = 'run'
+    worker_hijack_root_logger = False
+    task_acks_late = True
+    worker_prefetch_multiplier = 1
+    worker_send_task_events = False
+    task_track_started = True
+    worker_concurrency = 2
+    result_expires = 86400  # One day in seconds
 
     @staticmethod
-    def _getqueues(exchange):
+    def _get_queues(exchange):
         env = os.getenv('sysenv', 'dev')
 
         queues = ()
@@ -48,11 +48,13 @@ class CeleryConfig:
         return queues
 
     def __init__(self, app_settings):
-        self.BROKER_PASS = urllib.quote(os.getenv('BROKER_PASS', 'password'))
-        self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
-        self.CELERY_RESULT_BACKEND = app_settings.DBURL
-        self.CELERY_MONGODB_BACKEND_SETTINGS = {
+        self.broker_url = os.getenv('BROKER_URL')  # For local docker-compose testing
+        if not self.broker_url:
+            self.BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+            self.broker_url = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
+        self.result_backend = app_settings.DBURL
+        self.mongodb_backend_settings = {
             'database': app_settings.DB,
             'taskmeta_collection': 'classifier-celery'
         }
-        self.CELERY_QUEUES = CeleryConfig._getqueues(app_settings.EXCHANGE)
+        self.task_queues = CeleryConfig._get_queues(app_settings.EXCHANGE)

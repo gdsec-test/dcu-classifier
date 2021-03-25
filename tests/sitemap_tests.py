@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 
 from mock import patch
 from nose.tools import assert_equals, assert_false, assert_true
@@ -108,7 +109,8 @@ def mocked_requests_get(*args, **kwargs):
     </urlset>
     """
 
-    with open('tests/files/sitemap.xml.gz', 'r') as myfile:
+    gzip_file = '{}/files/sitemap.xml.gz'.format(Path(__file__).parent)
+    with open(gzip_file, 'rb') as myfile:
         sitemap_gzip_1_content = myfile.read()
 
     if args[0] == 'http://example.com/sitemap1.xml':
@@ -122,7 +124,7 @@ def mocked_requests_get(*args, **kwargs):
     elif args[0] == 'http://example.com/sitemap5.xml':
         return MockResponse(sitemap_5_content, 200)
     elif args[0] == 'http://example.com/sitemap1.xml.gz':
-        return MockResponse(sitemap_gzip_1_content, 200, True)
+        return MockResponse(sitemap_gzip_1_content, 200, is_gzipped=True)
     return MockResponse(None, 404)
 
 
@@ -149,10 +151,10 @@ class TestSitemapParser:
         :param mock_get:
         :return:
         """
-        count = 0
-        for url in self._parser.get_urls_from_web(self.SITEMAP_GZIP_URL_GOOD):
-            count += 1
-        assert_equals(count, 2)
+        urls = self._parser.get_urls_from_web(self.SITEMAP_GZIP_URL_GOOD)
+        assert_true('http://impcat.com/estimates/' in urls)
+        assert_equals(len(urls), 2)
+        mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_sitemap_pass(self, mock_get):
@@ -160,23 +162,22 @@ class TestSitemapParser:
         Reads sitemap xml file from URL and passes
         :return:
         """
-        count = 0
-        for url in self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_3):
-            count += 1
-        assert_equals(url, self.EXPECTED_URL)
-        assert_equals(count, 2)
+        urls = self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_3)
+        assert_true(self.EXPECTED_URL in urls)
+        assert_equals(len(urls), 2)
+        mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_sitemap_of_sitemaps_pass(self, mock_get):
         """
-        Reads sitemap xml file from URL and passes
+        Reads sitemap xml file from URL and passes. SITEMAP_URL_GOOD_4 contains sitemaps to sitemap_5_content,
+         sitemap_3_content and one invalid sitemap
         :return:
         """
-        count = 0
-        for url in self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_4):
-            count += 1
-        assert_equals(url, self.EXPECTED_URL)
-        assert_equals(count, 4)
+        urls = self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_4)
+        assert_true(self.EXPECTED_URL in urls)
+        assert_equals(len(urls), 4)
+        mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_fail_redundant_sitemap(self, mock_get):
@@ -186,6 +187,7 @@ class TestSitemapParser:
         :return:
         """
         assert_equals(self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD), [])
+        mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
     def test_get_urls_from_web_fail_bad_path(self, mock_get):
@@ -194,6 +196,7 @@ class TestSitemapParser:
         :return:
         """
         assert_equals(self._parser.get_urls_from_web(self.SITEMAP_URL_BAD), [])
+        mock_get.assert_called()
 
     def test_date_within_threshold_pass(self):
         """

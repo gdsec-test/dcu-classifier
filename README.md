@@ -54,16 +54,63 @@ This project utilizes Celery and Python
 
 ## Running Locally
 
-If you would like to run this locally, you will need to specify the following environment variables:
+`DCU Classifier` services (`classify` and/or `scan`) are made to run in parallel with `Auto Abuse ID`
 
+### Docker-compose, local docker images for dcu-classifier, dcu-scanner, auto_abuse_id and rabbitmq, with dev mongo
+
+REDIS is needed for running auto_abuse_id locally in a docker container.
+
+Environment variables for docker-compose:
+1. `DB_PASS` (Password for dev MongoDB)
+2. `API_JWT` (JWT for user who can create Abuse API tickets from dcu-scanner)
+
+Changes to docker-compose.yml file:
+1. Replace `PATH_TO_YOUR_CERTS_DIRECTORY` with your local path to the `apiuser.cmap.int.dev-godaddy.com` crt and key files
+
+Run `docker-compose up -d` to run dcu-classifier, dcu-scanner, auto_abuse_id, rabbitmq and redis locally in a docker container.
+Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
+Run `docker logs -f dcu-classifier_dcu-classifier_1` to view the run logs for dcu-classifier
+Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
+Run `redis-cli` to interact with your local REDIS instance
+Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
+
+### Debug dcu-classifier locally, running against docker-compose auto_abuse_id, rabbitmq, redis and dev mongo
+
+REDIS is needed for running auto_abuse_id locally in a docker container.
+
+Environment variables for docker-compose:
+1. `DB_PASS` (Password for dev MongoDB)
+
+Run `docker-compose up -d auto-abuse-id` to run auto_abuse_id, rabbitmq and redis locally in a docker container.
+Run `docker logs -f dcu-classifier_auto-abuse-id_1` to view the run logs for auto_abuse_id
+Run `docker logs -f dcu-classifier_rabbitmq_1` to view the run logs for rabbitmq
+Run `redis-cli` to interact with your local REDIS instance
+Browse to `127.0.0.1:15672` with creds `guest:guest` to view the management console for your local RabbitMQ
+
+Environment variables for debugging dcu-classifier (ie: PyCharm)
+1. `sysenv` Runtime env: `dev`
+2. `DB_PASS` (Password for MongoDB)
+3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
+4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
+5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
+6. `API_JWT` (JWT for user who can create Abuse API tickets)
+7. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
+8. `BROKER_URL` URL of RabbitMQ run via docker-compose: `amqp://guest@localhost:5672//`
+9. `DISABLESSL` We dont need an ssl connection to local RabbitMQ: `False`
+
+DCU Classifier can then be run/debugged locally by running `celery -A run worker -l debug -P solo`
+
+### Debug dcu-classifier locally, running against env specific rabbitmq and mongo
+If you would like to run this locally, you will need to specify the following environment variables:
 1. `sysenv` (dev, ote, prod)
 2. `DB_PASS` (Password for MongoDB)
-3. `BROKER_PASS` (Password for Celery)
-4. `WORKER_MODE` (needs to be `classify` or `scan`)
-5. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
-6. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
-7. `API_JWT` (JWT for user who can create Abuse API tickets)
+3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
+4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
+5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
+6. `API_JWT` (JWT for user who can create Abuse API tickets)
+7. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
+8. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7A` user
 
 You may also need to configure settings.py and celeryconfig.py to specify additional MongoDB and Celery settings.
 
-DCU Classifier can then be run locally by running `celery -A run worker -l INFO --without-gossip --without-heartbeat --without-mingle`
+DCU Classifier can then be run/debugged locally by running `celery -A run worker -l debug -P solo`

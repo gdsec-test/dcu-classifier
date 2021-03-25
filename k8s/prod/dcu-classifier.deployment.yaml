@@ -36,6 +36,8 @@ spec:
               value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
             - name: sysenv
               value: prod
+            - name: LOG_LEVEL
+              value: INFO
             - name: WORKER_MODE
               value: classify
             - name: ML_API_CERT

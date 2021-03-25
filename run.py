@@ -19,14 +19,29 @@ celery = Celery()
 celery.config_from_object(CeleryConfig(config))
 logger = get_task_logger('celery.tasks')
 
+log_level = os.getenv('LOG_LEVEL', 'INFO')
+
+
+def replace_dict(dict_to_replace):
+    """
+    Replace empty logging levels in logging.yaml with environment appropriate levels
+    :param dict_to_replace: logging.yaml is read into a dict which is passed in
+    :return:
+    """
+    for k, v in dict_to_replace.items():
+        if type(v) is dict:
+            replace_dict(dict_to_replace[k])
+        else:
+            if v == 'NOTSET':
+                dict_to_replace[k] = log_level
+
+
 # setup logging
-path = 'logging.yaml'
-value = os.getenv('LOG_CFG', None)
-if value:
-    path = value
+path = os.getenv('LOG_CFG', 'logging.yaml')
 if os.path.exists(path):
     with open(path, 'rt') as f:
         lconfig = yaml.safe_load(f.read())
+    replace_dict(lconfig)
     logging.config.dictConfig(lconfig)
 else:
     logging.basicConfig(level=logging.INFO)
@@ -85,7 +100,7 @@ class ClassifyTask(Task):
                                                                                                 result.text,
                                                                                                 result.json()))
             except Exception as e:
-                self._logger.error('Error posting ticket for {}: {}'.format(uri, e.message))
+                self._logger.error('Error posting ticket for {}: {}'.format(uri, e))
 
 
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')
@@ -125,7 +140,7 @@ def scan(self, data):
             uri = uri.replace('sitemap.xml', '')
             self._scan_uri(uri)
         except RequestException as e:
-            logger.error('Error fetching sitemap for {}: {}'.format(uri, e.message))
+            logger.error('Error fetching sitemap for {}: {}'.format(uri, e))
     else:
         self._scan_uri(uri)
     return {

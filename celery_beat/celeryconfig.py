@@ -1,25 +1,25 @@
 import os
-import urllib
+from urllib.parse import quote
 
 
 class CeleryConfig:
-    BROKER_TRANSPORT = 'pyamqp'
-    BROKER_USE_SSL = True
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_ACCEPT_CONTENT = ['json']
-    CELERY_IMPORTS = 'run'
-    CELERYD_HIJACK_ROOT_LOGGER = False
-    CELERY_ACKS_LATE = True
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_SEND_EVENTS = False
+    broker_transport = 'pyamqp'
+    broker_use_ssl = True
+    task_serializer = 'json'
+    result_serializer = 'json'
+    accept_content = ['json']
+    imports = 'run'
+    worker_hijack_root_logger = False
+    task_acks_late = True
+    worker_prefetch_multiplier = 1
+    worker_send_task_events = False
 
     def __init__(self, app_settings):
-        self.BROKER_PASS = urllib.quote(os.getenv('BROKER_PASS', 'password'))
-        self.BROKER_URL = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
+        self.BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+        self.broker_url = 'amqp://02d1081iywc7A:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
 
-        self.CELERY_RESULT_BACKEND = app_settings.DBURL
-        self.CELERY_MONGODB_BACKEND_SETTINGS = {
+        self.result_backend = app_settings.DBURL
+        self.mongodb_backend_settings = {
             'database': app_settings.DB,
             'taskmeta_collection': 'classifier-celery'
         }

@@ -1,5 +1,5 @@
 import os
-import urllib
+from urllib.parse import quote
 
 TEST = 'test'
 
@@ -22,8 +22,8 @@ class AppConfig(object):
     DEFAULT_FRAUD_SCORE = -1.0
 
     def __init__(self):
-        self.DB_PASS = urllib.quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-        self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
+        self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
+        self.DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify'  # should be either classify or scan
         self.API_JWT = 'sso-key {}:{}'.format(os.getenv('API_KEY'), os.getenv('API_SECRET'))
         self.ML_API_CERT = os.getenv('ML_API_CERT')

@@ -1,5 +1,5 @@
 import os
-import urllib
+from urllib.parse import quote
 
 
 class AppConfig(object):
@@ -9,7 +9,7 @@ class AppConfig(object):
     DB_HOST = 'localhost'
 
     def __init__(self):
-        self.DB_PASS = urllib.quote(os.getenv('DB_PASS', 'password'))
+        self.DB_PASS = quote(os.getenv('DB_PASS', 'password'))
         self.DBURL = 'mongodb://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
 
 

@@ -7,7 +7,7 @@ BUILD_BRANCH=origin/master
 SHELL=/bin/bash
 
 # libraries we need to stage for pip to install inside Docker build
-PRIVATE_PIPS="git@github.secureserver.net:digital-crimes/dcdatabase.git;ff1ddc9bd07a380769bf54c0f5aa59793a5975c0"
+PRIVATE_PIPS=git@github.secureserver.net:digital-crimes/dcdatabase.git
 
 all: env
 
@@ -24,7 +24,7 @@ flake8:
 .PHONY: isort
 isort:
 	@echo "----- Optimizing imports -----"
-	isort -rc --atomic .
+	isort --atomic .
 
 .PHONY: tools
 tools: flake8 isort
@@ -32,12 +32,12 @@ tools: flake8 isort
 .PHONY: test
 test:
 	@echo "----- Running tests -----"
-	nosetests tests
+	sysenv=test nosetests tests
 
 .PHONY: testcov
 testcov:
 	@echo "----- Running tests with coverage -----"
-	nosetests tests --with-coverage --cover-erase --cover-package=service
+	sysenv=test nosetests tests --with-coverage --cover-erase --cover-package=service
 
 
 .PHONY: prep

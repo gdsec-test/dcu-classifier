@@ -90,15 +90,14 @@ class ClassifyTask(Task):
                         'fraud_score': fraud_score
                     }
                 }
-                if env == 'dev':  # safeguard; headers contains sensitive info
-                    self._logger.info('Sending POST to {} with payload {} and headers {}'.format(config.API_URL,
-                                                                                                 payload,
-                                                                                                 headers))
+                # safeguard using DEBUG logging; headers contains sensitive info
+                self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL,
+                                                                                              payload,
+                                                                                              headers))
                 result = requests.post(config.API_URL, json=payload, headers=headers)
-                if env == 'dev':
-                    self._logger.info('Result from POST: status_code {} text {} json {}'.format(result.status_code,
-                                                                                                result.text,
-                                                                                                result.json()))
+                self._logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code,
+                                                                                             result.text,
+                                                                                             result.json()))
             except Exception as e:
                 self._logger.error('Error posting ticket for {}: {}'.format(uri, e))
 

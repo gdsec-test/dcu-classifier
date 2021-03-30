@@ -10,11 +10,6 @@ class AppConfig(object):
     DB_PORT = 27017
     DB_USER = 'dbuser'
     DB_HOST = 'localhost'
-    COLLECTION = 'fingerprints'
-    LOGGING_COLLECTION = 'logs'
-    BUCKET_WEIGHTS = [1, 2, 3, 4, 5]  # how to weigh each bucket
-    # the number of buckets is derived from the number of weights
-    # the spacing between each bucket is determined by the minimum confidence requested
     MAX_AGE = 1  # Maximum number of days old a URL can be for sitemap extraction
 
     # Machine Learning API
@@ -67,7 +62,6 @@ class DevelopmentAppConfig(AppConfig):
 
 class TestingConfig(AppConfig):
     DBURL = 'mongodb://localhost/devphishstory'
-    COLLECTION = TEST
 
     ML_API = TEST
     ML_API_CERT = TEST

@@ -36,6 +36,8 @@ spec:
               value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
             - name: sysenv
               value: ote
+            - name: LOG_LEVEL
+              value: DEBUG
             - name: WORKER_MODE
               value: scan
             - name: ML_API_CERT

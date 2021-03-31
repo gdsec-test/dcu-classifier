@@ -25,6 +25,11 @@ spec:
           name: 'dcu-classifier'
           imagePullPolicy: 'Always'
           image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev'
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "512Mi"
           livenessProbe:
             exec:
               command:

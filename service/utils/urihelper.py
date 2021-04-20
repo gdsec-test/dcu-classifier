@@ -43,7 +43,6 @@ class URIHelper:
         """
         sourcecode = None
         for _ in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
-            browser = None
             try:
                 browser = webdriver.PhantomJS()
                 browser.set_page_load_timeout(timeout)
@@ -53,9 +52,8 @@ class URIHelper:
                 self._logger.error("Error while scraping source code for {}: {}".format(url, e))
             finally:
                 try:
-                    if browser:
-                        browser.service.process.send_signal(signal.SIGTERM)
-                        browser.quit()
+                    browser.service.process.send_signal(signal.SIGTERM)
+                    browser.quit()
                 except Exception:
                     pass
             if sourcecode:

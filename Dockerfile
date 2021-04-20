@@ -1,36 +1,35 @@
-FROM python:3.7.10-slim as base
+FROM python:3.7.10-slim
 LABEL MAINTAINER="dcueng@godaddy.com"
 
 RUN addgroup dcu && adduser --disabled-password --disabled-login --no-create-home --ingroup dcu --system dcu
-RUN apt-get update && apt-get install -y gcc phantomjs
+RUN apt-get update && apt-get install -y gcc bzip2 libfreetype6 libfontconfig1 wget -y
+
+# We need to pull this specific phantomjs. We want to maintain consistency with GDBS.
+RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
+RUN tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 -C /usr/local/share/
+RUN ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/
+
+COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh /app/
+COPY . /tmp
 
 RUN pip install -U pip
-COPY ./private_pips /tmp/private_pips
 RUN pip install --compile /tmp/private_pips/dcdatabase
-
-FROM base as deliverable
-
-RUN mkdir -p /app
-COPY ./run.py ./celeryconfig.py ./settings.py ./*.yaml ./health.sh /app/
-
-# Compile the Flask API
-COPY . /tmp
 RUN pip install --compile /tmp
 
 # cleanup
-RUN apt-get remove -y gcc
+RUN apt-get remove -y gcc wget bzip2
 RUN rm -rf /tmp
-
-# Something to get PhantomJS to run without throwing errors
-RUN mkdir -p /tmp/runtime-dcu
-RUN chown -R dcu:dcu /tmp/runtime-dcu
-RUN strip --remove-section=.note.ABI-tag /usr/lib/x86_64-linux-gnu/libQt5Core.so.5
 
 # Fix permissions.
 RUN chown -R dcu:dcu /app
 
-USER dcu
+# Something to get PhantomJS to run without throwing errors
+RUN mkdir -p /tmp/runtime-dcu
+RUN chown -R dcu:dcu /tmp/runtime-dcu
+
 WORKDIR /app
-ENV QT_QPA_PLATFORM offscreen
+USER dcu
+ENV QT_QPA_PLATFORM phantom
+ENV OPENSSL_CONF /etc/ssl/
 
 CMD ["/usr/local/bin/celery", "-A", "run", "worker", "-l", "INFO", "--without-heartbeat", "--without-gossip", "--without-mingle"]

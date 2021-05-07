@@ -14,6 +14,7 @@ COPY . /tmp
 
 RUN pip install -U pip
 RUN pip install --compile /tmp/private_pips/dcdatabase
+RUN pip install --compile /tmp/private_pips/dcu-structured-logging-celery
 RUN pip install --compile /tmp
 
 # cleanup

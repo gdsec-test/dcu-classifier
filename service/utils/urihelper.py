@@ -1,5 +1,7 @@
 import logging
+import os
 import signal
+import warnings
 from time import sleep
 
 from requests import sessions
@@ -43,19 +45,24 @@ class URIHelper:
         """
         sourcecode = None
         for _ in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
-            try:
-                browser = webdriver.PhantomJS()
-                browser.set_page_load_timeout(timeout)
-                browser.get(url)
-                sourcecode = self._backoff(browser)
-            except Exception as e:
-                self._logger.error("Error while scraping source code for {}: {}".format(url, e))
-            finally:
+            # PhantomJS is deprecated - ignore the warning it logs every time
+            # we call this to reduce we call this to reduce log spam.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
                 try:
-                    browser.service.process.send_signal(signal.SIGTERM)
-                    browser.quit()
-                except Exception:
-                    pass
+                    browser = webdriver.PhantomJS()
+                    browser.set_page_load_timeout(timeout)
+                    browser.get(url)
+                    sourcecode = self._backoff(browser)
+                except Exception as e:
+                    self._logger.error(f"Error while scraping source code for {url}: {e}")
+                finally:
+                    try:
+                        pid = browser.service.process.pid
+                        browser.quit()
+                        os.kill(pid, signal.SIGTERM)
+                    except Exception:
+                        pass
             if sourcecode:
                 break
         if isinstance(sourcecode, bytes):

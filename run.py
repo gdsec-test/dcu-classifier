@@ -5,6 +5,7 @@ import requests
 import yaml
 from celery import Celery, Task
 from celery.utils.log import get_task_logger
+from dcustructuredlogging import celerylogger  # noqa: F401
 from requests.exceptions import RequestException
 
 from celeryconfig import CeleryConfig

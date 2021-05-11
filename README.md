@@ -63,8 +63,7 @@ REDIS is needed for running auto_abuse_id locally in a docker container.
 
 Environment variables for docker-compose:
 1. `DB_PASS` (Password for dev MongoDB)
-2. `API_KEY` for DCU Abuse (Scan API) shopper
-3. `API_SECRET` for DCU Abuse (Scan API) shopper
+2. `API_TOKEN` for DCU Abuse (Scan API) shopper
 
 Changes to docker-compose.yml file:
 1. Replace `PATH_TO_YOUR_CERTS_DIRECTORY` with your local path to the `apiuser.cmap.int.dev-godaddy.com` crt and key files
@@ -95,8 +94,8 @@ Environment variables for debugging dcu-classifier (ie: PyCharm)
 3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
 4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
 5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
-6. `API_KEY` for DCU Abuse (Scan API) shopper
-7. `API_SECRET` for DCU Abuse (Scan API) shopper
+6. `API_TOKEN` for DCU Abuse (Scan API) shopper
+7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
 8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
 9. `BROKER_URL` URL of RabbitMQ run via docker-compose: `amqp://guest@localhost:5672//`
 10. `DISABLESSL` We dont need an ssl connection to local RabbitMQ: `False`
@@ -110,8 +109,8 @@ If you would like to run this locally, you will need to specify the following en
 3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
 4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
 5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
-6. `API_KEY` for DCU Abuse (Scan API) shopper
-7. `API_SECRET` for DCU Abuse (Scan API) shopper
+6. `API_TOKEN` for DCU Abuse (Scan API) shopper
+7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
 8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
 9. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7A` user
 

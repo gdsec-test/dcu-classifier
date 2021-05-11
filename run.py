@@ -83,7 +83,7 @@ class ClassifyTask(Task):
         self._logger.info('URI {} assigned fraud_score: {}'.format(uri, fraud_score))
         if fraud_score >= self.MIN_FRAUD_SCORE_TO_CREATE_TICKET:
             try:
-                headers = {'Authorization': config.API_JWT}
+                headers = {'Authorization': config.API_TOKEN}
                 payload = {
                     'type': 'PHISHING',
                     'source': uri,
@@ -92,10 +92,10 @@ class ClassifyTask(Task):
                     }
                 }
                 # safeguard using DEBUG logging; headers contains sensitive info
-                self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_URL,
+                self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_CREATE_URL,
                                                                                               payload,
                                                                                               headers))
-                result = requests.post(config.API_URL, json=payload, headers=headers)
+                result = requests.post(config.API_CREATE_URL, json=payload, headers=headers)
                 self._logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code,
                                                                                              result.text,
                                                                                              result.json()))

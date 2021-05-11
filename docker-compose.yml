@@ -25,8 +25,6 @@ services:
       WORKER_MODE: 'classify'
       ML_API_CERT: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.crt
       ML_API_KEY: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.key
-      API_KEY: ${API_KEY}
-      API_SECRET: ${API_SECRET}
       BROKER_URL: amqp://guest@rabbitmq:5672//
       DISABLESSL: 'True'
     volumes:
@@ -45,8 +43,8 @@ services:
       WORKER_MODE: 'scan'
       ML_API_CERT: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.crt
       ML_API_KEY: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.key
-      API_KEY: ${API_KEY}
-      API_SECRET: ${API_SECRET}
+      API_TOKEN: ${API_TOKEN}
+      ABUSE_API_CREATE_URL: https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets
       BROKER_URL: amqp://guest@rabbitmq:5672//
       DISABLESSL: 'True'
     volumes:

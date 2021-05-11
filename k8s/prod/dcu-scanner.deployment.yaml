@@ -57,16 +57,13 @@ spec:
                 secretKeyRef:
                   name: db-dcu-classifier
                   key: password
-            - name: API_SECRET
+            - name: API_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: api-classifier
-                  key: secret
-            - name: API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: api-classifier
-                  key: key
+                  name: api-token
+                  key: token
+            - name: ABUSE_API_CREATE_URL
+              value: http://api.abuse-api-prod.svc.cluster.local:5000/v1/abuse/tickets
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

@@ -87,6 +87,7 @@ dev: prep
 	@echo "----- building $(REPONAME) dev -----"
 	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yaml $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yaml
 	docker build -t $(DOCKERREPO):dev $(BUILDROOT)
+	docker build -t docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev -f Dockerfile.wiremock $(BUILDROOT)
 
 .PHONY: prod-deploy
 prod-deploy: prod
@@ -106,6 +107,7 @@ ote-deploy: ote
 dev-deploy: dev
 	@echo "----- deploying $(REPONAME) dev -----"
 	docker push $(DOCKERREPO):dev
+	docker push docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
 	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yaml --record
 	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yaml --record
 

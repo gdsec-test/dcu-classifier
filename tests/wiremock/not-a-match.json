@@ -1,0 +1,20 @@
+{
+    "request" : {
+      "method" : "POST",
+      "queryParameters" : {
+        "x-api-key" : {
+          "equalTo" : "api-key"
+        }
+      },
+      "urlPath" : "/ursula/v1/url-class",
+      "bodyPatterns": [ {
+        "matchesJsonPath": "$[?(@.url != 'http://randomtest1234.com/phishing_site')]"
+        }
+      ]
+    },
+    "response" : {
+      "status" : 200,
+      "body": "{\"url\": \"{{jsonPath request.body '$.url'}}\", \"submission_id\": \"12345\",\"score\": \"45.1\",\"status\": \"Live\",\"classification\": \"NotPhishing\"}",
+      "transformers": ["response-template"]
+    }
+  }

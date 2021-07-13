@@ -10,6 +10,7 @@ from requests.exceptions import RequestException
 
 from celeryconfig import CeleryConfig
 from service.classifiers.ml_api import MLAPI
+from service.classifiers.ursula import UrlClassification, UrsulaAPI
 from service.parsers.parse_sitemap import SitemapParser
 from settings import config_by_name
 
@@ -65,6 +66,7 @@ class ClassifyTask(Task):
         self._parser = SitemapParser(config.MAX_AGE)
         self._logger = logging.getLogger(__name__)
         self._default_fraud_score = config.DEFAULT_FRAUD_SCORE
+        self._ursula = UrsulaAPI(config)
 
     @property
     def ml_api(self):
@@ -72,6 +74,18 @@ class ClassifyTask(Task):
 
     def run(self, *args, **kwargs):
         pass
+
+    def _create_ticket(self, uri, fraud_score=-1.0):
+        headers = {'Authorization': config.API_TOKEN}
+        payload = {
+            'type': 'PHISHING',
+            'source': uri,
+            'metadata': {
+                'fraud_score': fraud_score
+            }
+        }
+        result = requests.post(config.API_CREATE_URL, json=payload, headers=headers)
+        self._logger.debug(f'Result from POST: status_code {result.status_code} text {result.text}')
 
     def _scan_uri(self, uri):
         """
@@ -83,24 +97,16 @@ class ClassifyTask(Task):
         self._logger.info('URI {} assigned fraud_score: {}'.format(uri, fraud_score))
         if fraud_score >= self.MIN_FRAUD_SCORE_TO_CREATE_TICKET:
             try:
-                headers = {'Authorization': config.API_TOKEN}
-                payload = {
-                    'type': 'PHISHING',
-                    'source': uri,
-                    'metadata': {
-                        'fraud_score': fraud_score
-                    }
-                }
-                # safeguard using DEBUG logging; headers contains sensitive info
-                self._logger.debug('Sending POST to {} with payload {} and headers {}'.format(config.API_CREATE_URL,
-                                                                                              payload,
-                                                                                              headers))
-                result = requests.post(config.API_CREATE_URL, json=payload, headers=headers)
-                self._logger.debug('Result from POST: status_code {} text {} json {}'.format(result.status_code,
-                                                                                             result.text,
-                                                                                             result.json()))
+                self._create_ticket(uri, fraud_score)
             except Exception as e:
-                self._logger.error('Error posting ticket for {}: {}'.format(uri, e))
+                self._logger.error(f'Error posting ticket for {uri}: {e}')
+        elif config.URSULA_API_ENABLED:
+            try:
+                (classification, _) = self._ursula.classify_url(uri)
+                if classification == UrlClassification.Phishing:
+                    self._create_ticket(uri)
+            except Exception as e:
+                self._logger.error(f'Error with URSULA API interactions for {uri}: {e}')
 
 
 @celery.task(bind=True, base=ClassifyTask, name='classify.request')

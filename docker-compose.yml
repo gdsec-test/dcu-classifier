@@ -13,8 +13,7 @@ services:
       - redis:redis
       - rabbitmq:rabbitmq
     depends_on:
-      - rabbitmq
-      - redis
+      - dcu-classifier
 
   dcu-classifier:
     image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev
@@ -33,6 +32,8 @@ services:
       - rabbitmq:rabbitmq
     depends_on:
       - rabbitmq
+      - redis
+      - wiremock
 
   dcu-scanner:
     image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev
@@ -53,6 +54,8 @@ services:
       - rabbitmq:rabbitmq
     depends_on:
       - rabbitmq
+      - redis
+      - wiremock
 
   rabbitmq:
     image: rabbitmq:3.8.14-management
@@ -64,3 +67,10 @@ services:
     image: redis:6.2.1
     ports:
       - 6379:6379
+
+  wiremock:
+    build:
+      context: .
+      dockerfile: Dockerfile.wiremock
+    ports:
+      - 8080:8080

@@ -19,6 +19,10 @@ class AppConfig(object):
     API_TOKEN = os.getenv('API_TOKEN', 'token')
     API_CREATE_URL = os.getenv('ABUSE_API_CREATE_URL', 'http://abuse-api:5000/v1/abuse/tickets')
 
+    URSULA_API_URL = os.getenv('URSULA_API_URL', 'http://localhost:8080/ursula/v1')
+    URSULA_API_KEY = os.getenv('URSULA_API_KEY', 'api-key')
+    URSULA_API_ENABLED = os.getenv('URSULA_API_ENABLED', 'False') == 'True'
+
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
@@ -65,6 +69,10 @@ class TestingConfig(AppConfig):
     ML_API = TEST
     ML_API_CERT = TEST
     ML_API_KEY = TEST
+
+    URSULA_API_ENABLED = False
+    URSULA_API_URL = 'http://localhost/ursula/v1'
+    URSULA_API_KEY = 'api-key'
 
 
 config_by_name = {'dev': DevelopmentAppConfig,

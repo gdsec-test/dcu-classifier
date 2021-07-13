@@ -21,8 +21,10 @@ spec:
         -
           name: 'dcu-artifactory-creds'
       containers:
-        -
-          name: 'dcu-scanner'
+        - name: wiremock
+          imagePullPolicy: Always
+          image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
+        - name: 'dcu-scanner'
           imagePullPolicy: 'Always'
           image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev'
           resources:
@@ -66,6 +68,12 @@ spec:
                   key: token
             - name: ABUSE_API_CREATE_URL
               value: http://api.abuse-api-dev.svc.cluster.local:5000/v1/abuse/tickets
+            - name: URSULA_API_URL
+              value: http://localhost:8080/ursula/v1
+            - name: URSULA_API_KEY
+              value: api-key
+            - name: URSULA_API_ENABLED
+              value: 'True'
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

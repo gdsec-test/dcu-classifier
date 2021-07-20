@@ -13,9 +13,7 @@ COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh /app/
 COPY . /tmp
 
 RUN pip install -U pip
-RUN pip install --compile /tmp/private_pips/dcdatabase
-RUN pip install --compile /tmp/private_pips/dcu-structured-logging-celery
-RUN pip install --compile /tmp
+RUN PIP_CONFIG_FILE=/tmp/pip_config/pip.conf pip install --compile /tmp
 
 # cleanup
 RUN apt-get remove -y gcc wget bzip2

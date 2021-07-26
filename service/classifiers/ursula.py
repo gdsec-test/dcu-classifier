@@ -28,9 +28,8 @@ class UrsulaAPI:
         """
 
         payload = json.dumps({'url': url})
-        query_params = {'x-api-key': self._api_key}
-        headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
-        response = requests.post(self._url, headers=headers, data=payload, params=query_params)
+        headers = {'Content-type': 'application/json', 'Accept': 'application/json', 'x-api-key': self._api_key}
+        response = requests.post(self._url, headers=headers, data=payload)
         response.raise_for_status()
         if response.status_code == 214:
             return (UrlClassification.CouldNotClassify, 0.0)

@@ -64,6 +64,15 @@ spec:
                   key: token
             - name: ABUSE_API_CREATE_URL
               value: http://api.abuse-api-prod.svc.cluster.local:5000/v1/abuse/tickets
+            - name: URSULA_API_URL
+              value: https://api.phishfeed.com/ursula/v1
+            - name: URSULA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ursula-api-token
+                  key: token
+            - name: URSULA_API_ENABLED
+              value: 'True'
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

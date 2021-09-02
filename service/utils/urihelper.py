@@ -1,19 +1,16 @@
 import logging
 import os
 import signal
+import warnings
 from time import sleep
-from typing import Optional
 
 from requests import sessions
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
 
 
 class URIHelper:
     NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD = 3
     EMPTY_HTML_PAGE = '<html><head></head><body></body></html>'.encode('ascii', 'ignore')
-    BACKOFF_NUM = 5
-    BROWSER_WINDOW_SIZE = 400, 300
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -39,33 +36,33 @@ class URIHelper:
                 "Error in determining if url resolves {} : {}".format(url, e))
             return False
 
-    def get_site_data(self, url: str, timeout: int = 10) -> Optional[str]:
+    def get_site_data(self, url, timeout=10):
         """
         Returns the sourcecode string for the url provided
         :param url: string
         :param timeout: int value of page load timeout
-        :return: string of sourcecode or None
+        :return: string of sourcecode
         """
         sourcecode = None
         for _ in range(self.NUMBER_OF_TIMES_TO_RETRY_PAGE_LOAD):
-            try:
-                options = webdriver.FirefoxOptions()
-                options.headless = True
-                profile = webdriver.FirefoxProfile()
-                options.set_preference("javascript.enabled", False)
-                browser = webdriver.Firefox(options=options, firefox_profile=profile)
-                browser.set_window_size(*self.BROWSER_WINDOW_SIZE)
-                browser.set_page_load_timeout(timeout)
-                browser.get(url)
-                sourcecode = self._backoff(browser)
-            except Exception as e:
-                self._logger.error(f"Error while scraping source code for {url}: {e}")
-            finally:
+            # PhantomJS is deprecated - ignore the warning it logs every time
+            # we call this to reduce we call this to reduce log spam.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
                 try:
-                    browser.quit()
-                    os.kill(browser.service.process.pid, signal.SIGTERM)
-                except Exception:
-                    pass
+                    browser = webdriver.PhantomJS()
+                    browser.set_page_load_timeout(timeout)
+                    browser.get(url)
+                    sourcecode = self._backoff(browser)
+                except Exception as e:
+                    self._logger.error(f"Error while scraping source code for {url}: {e}")
+                finally:
+                    try:
+                        pid = browser.service.process.pid
+                        browser.quit()
+                        os.kill(pid, signal.SIGTERM)
+                    except Exception:
+                        pass
             if sourcecode:
                 break
         if isinstance(sourcecode, bytes):
@@ -79,15 +76,9 @@ class URIHelper:
         :return:
         """
         sourcecode = None
-        for i in range(self.BACKOFF_NUM):
+        for i in range(5):
             sourcecode = browser.page_source.encode('ascii', 'ignore')
-            try:
-                WebDriverWait(browser, i).until(
-                    lambda driver: driver.execute_script('return document.readyState') == 'complete')
-                source = browser.page_source.encode('ascii', 'ignore')
-                if source != self.EMPTY_HTML_PAGE:
-                    break
-            except Exception:
-                pass
+            if sourcecode != self.EMPTY_HTML_PAGE:
+                break
             sleep(i)
         return sourcecode

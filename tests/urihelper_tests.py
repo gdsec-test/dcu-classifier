@@ -30,9 +30,6 @@ class MockPhantom:
     def set_page_load_timeout(self, _):
         pass
 
-    def set_window_size(self, _, __):
-        pass
-
     def get(self, _):
         pass
 
@@ -87,12 +84,12 @@ class TestURIHelper:
         mocked_method.return_value = namedtuple('struct', list(status.keys()))(**status)
         assert_false(self._urihelper.resolves(self.test_url))
 
-    @patch.object(webdriver, 'Firefox', return_value=MockPhantom(None))
+    @patch.object(webdriver, 'PhantomJS', return_value=MockPhantom(None))
     def test_get_site_data_no_sourcecode(self, mock_phantom):
         assert_is_none(self._urihelper.get_site_data(self.URI))
         mock_phantom.assert_called()
 
-    @patch.object(webdriver, 'Firefox', return_value=MockPhantom(HTML))
+    @patch.object(webdriver, 'PhantomJS', return_value=MockPhantom(HTML))
     def test_get_site_data_valid_sourcecode(self, mock_phantom):
         assert_equal(self._urihelper.get_site_data(self.URI), HTML)
         mock_phantom.assert_called()

@@ -38,5 +38,5 @@ spec:
           - name: DB_PASS
             valueFrom:
               secretKeyRef:
-                name: db-dcu-classifier
+                name: db-phishstory-v2
                 key: password

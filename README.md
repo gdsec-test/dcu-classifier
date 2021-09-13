@@ -113,6 +113,8 @@ If you would like to run this locally, you will need to specify the following en
 7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
 8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
 9. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7A` user
+10. `SSO_USER` user to retrieve JWT with.
+11. `SSO_PASSWORD` password to retrieve JWT with.
 
 You may also need to configure settings.py and celeryconfig.py to specify additional MongoDB and Celery settings.
 

@@ -22,6 +22,10 @@ class AppConfig(object):
     URSULA_API_URL = os.getenv('URSULA_API_URL', 'http://localhost:8080/ursula/v1')
     URSULA_API_KEY = os.getenv('URSULA_API_KEY', 'api-key')
     URSULA_API_ENABLED = os.getenv('URSULA_API_ENABLED', 'False') == 'True'
+    SSO_URL = 'https://sso.dev-godaddy.com'
+    SSO_USER = os.getenv('SSO_USER', 'user')
+    SSO_PASSWORD = os.getenv('SSO_PASSWORD', 'password')
+    SCAN_SHOPPER_ID = 'empty'
 
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
@@ -36,6 +40,8 @@ class ProductionAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_p_phish'
     EXCHANGE = 'classifier'
+    SSO_URL = 'https://sso.godaddy.com'
+    SCAN_SHOPPER_ID = '185469329'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -46,6 +52,8 @@ class OTEAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_o_phish'
     EXCHANGE = 'oteclassifier'
+    SSO_URL = 'https://sso.ote-godaddy.com'
+    SCAN_SHOPPER_ID = '1500031169'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -58,6 +66,7 @@ class DevelopmentAppConfig(AppConfig):
     EXCHANGE = 'devclassifier'
 
     ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
+    SCAN_SHOPPER_ID = '1440013'
 
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()
@@ -73,6 +82,8 @@ class TestingConfig(AppConfig):
     URSULA_API_ENABLED = False
     URSULA_API_URL = 'http://localhost/ursula/v1'
     URSULA_API_KEY = 'api-key'
+    SSO_URL = 'http://localhost/'
+    SCAN_SHOPPER_ID = 'shopper'
 
 
 config_by_name = {'dev': DevelopmentAppConfig,

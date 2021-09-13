@@ -1,5 +1,7 @@
 import logging.config
 import os
+from functools import partial
+from json import loads
 
 import requests
 import yaml
@@ -67,6 +69,23 @@ class ClassifyTask(Task):
         self._logger = logging.getLogger(__name__)
         self._default_fraud_score = config.DEFAULT_FRAUD_SCORE
         self._ursula = UrsulaAPI(config)
+        self._sso_endpoint = f'{config.SSO_URL}/v1/api/token'
+        self._user = config.SSO_USER
+        self._password = config.SSO_PASSWORD
+        self._header = {'Authorization': self._get_jwt()}
+
+    def _get_jwt(self):
+        """
+        Pull down JWT via username/password.
+        """
+        try:
+            response = requests.post(self._sso_endpoint, json={'username': self._user, 'password': self._password}, params={'realm': 'idp'})
+            response.raise_for_status()
+            body = loads(response.text)
+            return body.get('data')
+        except Exception as e:
+            self._logger.error(e)
+        return None
 
     @property
     def ml_api(self):
@@ -76,16 +95,22 @@ class ClassifyTask(Task):
         pass
 
     def _create_ticket(self, uri, fraud_score=-1.0):
-        headers = {'Authorization': config.API_TOKEN}
         payload = {
             'type': 'PHISHING',
             'source': uri,
             'metadata': {
                 'fraud_score': fraud_score
-            }
+            },
+            'reporter': config.SCAN_SHOPPER_ID
         }
-        result = requests.post(config.API_CREATE_URL, json=payload, headers=headers)
-        self._logger.debug(f'Result from POST: status_code {result.status_code} text {result.text}')
+
+        api_call = partial(requests.post, config.API_CREATE_URL, json=payload, headers=self._header)
+        r = api_call()
+        if r.status_code in [401, 403]:
+            self._header['Authorization'] = self._get_jwt()
+            r = api_call()
+
+        self._logger.debug(f'Result from POST: status_code {r.status_code} text {r.text}')
 
     def _scan_uri(self, uri):
         """

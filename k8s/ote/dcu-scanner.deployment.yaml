@@ -75,6 +75,16 @@ spec:
                   key: token
             - name: URSULA_API_ENABLED
               value: 'True'
+            - name: SSO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: abuse-api-user
+                  key: username
+            - name: SSO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: abuse-api-user
+                  key: password
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

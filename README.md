@@ -112,7 +112,7 @@ If you would like to run this locally, you will need to specify the following en
 6. `API_TOKEN` for DCU Abuse (Scan API) shopper
 7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
 8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
-9. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7A` user
+9. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7Av2` user
 10. `SSO_USER` user to retrieve JWT with.
 11. `SSO_PASSWORD` password to retrieve JWT with.
 

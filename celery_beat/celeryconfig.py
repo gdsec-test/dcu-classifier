@@ -1,5 +1,4 @@
-import os
-from urllib.parse import quote
+from settings import AppConfig
 
 
 class CeleryConfig:
@@ -14,9 +13,9 @@ class CeleryConfig:
     worker_prefetch_multiplier = 1
     worker_send_task_events = False
 
-    def __init__(self, app_settings):
-        self.BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
-        self.broker_url = 'amqp://02d1081iywc7Av2:' + self.BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
+    def __init__(self, app_settings: AppConfig):
+        self.BROKER_PASS = app_settings.BROKER_PASS
+        self.broker_url = app_settings.BROKER_URL
 
         self.result_backend = app_settings.DBURL
         self.mongodb_backend_settings = {

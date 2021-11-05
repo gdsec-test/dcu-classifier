@@ -26,6 +26,8 @@ class AppConfig(object):
     SSO_USER = os.getenv('SSO_USER', 'user')
     SSO_PASSWORD = os.getenv('SSO_PASSWORD', 'password')
     SCAN_SHOPPER_ID = 'empty'
+    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.dev-godaddy.com:5672/grandma'
 
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
@@ -42,6 +44,8 @@ class ProductionAppConfig(AppConfig):
     EXCHANGE = 'classifier'
     SSO_URL = 'https://sso.godaddy.com'
     SCAN_SHOPPER_ID = '185469329'
+    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -54,6 +58,8 @@ class OTEAppConfig(AppConfig):
     EXCHANGE = 'oteclassifier'
     SSO_URL = 'https://sso.ote-godaddy.com'
     SCAN_SHOPPER_ID = '1500031169'
+    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()

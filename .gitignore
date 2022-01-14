@@ -108,3 +108,5 @@ ENV/
 .envrc
 .tool-versions
 integration_test.py
+.direnv
+shell.nix

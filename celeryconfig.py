@@ -10,7 +10,7 @@ class CeleryConfig:
     broker_use_ssl = not os.getenv('DISABLESSL', False)  # True unless local docker-compose testing
     task_serializer = 'json'
     result_serializer = 'json'
-    accept_content = ['json']
+    accept_content = ['json', 'pickle']
     imports = 'run'
     worker_hijack_root_logger = False
     task_acks_late = True

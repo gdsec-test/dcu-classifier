@@ -1,0 +1,79 @@
+---
+apiVersion: 'apps/v1'
+kind: 'Deployment'
+metadata:
+  name: 'dcu-classifier'
+  namespace: 'abuse-api-test'
+  labels:
+    app: 'dcu-classifier'
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: 'dcu-classifier'
+  template:
+    metadata:
+      labels:
+        app: 'dcu-classifier'
+    spec:
+      imagePullSecrets:
+        -
+          name: 'dcu-artifactory-creds'
+      containers:
+        -
+          name: 'dcu-classifier'
+          imagePullPolicy: 'Always'
+          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:test'
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "512Mi"
+          livenessProbe:
+            exec:
+              command:
+                - '/app/health.sh'
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          env:
+            - name: BUILD_DATE
+              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
+            - name: sysenv
+              value: testenv
+            - name: LOG_LEVEL
+              value: DEBUG
+            - name: WORKER_MODE
+              value: classify
+            - name: ML_API_CERT
+              value: /mlapicerts/tls.crt
+            - name: ML_API_KEY
+              value: /mlapicerts/tls.key
+            - name: BROKER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: amqp-shared-creds
+                  key: password
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-phishstory-v2
+                  key: password
+            - name: SSO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: abuse-api-user
+                  key: username
+            - name: SSO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: abuse-api-user
+                  key: password
+          volumeMounts:
+            - name: tls-files-api
+              mountPath: /mlapicerts
+              readOnly: true
+      volumes:
+        - name: tls-files-api
+          secret:
+            secretName: tls-mlapi-api

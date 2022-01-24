@@ -35,6 +35,12 @@ ote: prep
 	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/ote/deployment.yaml
 	docker build -t $(DOCKERREPO):ote $(BUILDROOT)
 
+.PHONY: test-env
+test-env: prep
+	@echo "----- building $(REPONAME) ote -----"
+	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/test/deployment.yaml
+	docker build -t $(DOCKERREPO):test $(BUILDROOT)
+
 .PHONY: dev-deploy
 dev: prep
 	@echo "----- building $(REPONAME) dev -----"
@@ -52,6 +58,12 @@ ote-deploy: ote
 	@echo "----- deploying $(REPONAME) ote -----"
 	docker push $(DOCKERREPO):ote
 	kubectl --context ote-dcu apply -f $(BUILDROOT)/k8s/ote/deployment.yaml --record
+
+.PHONY: test-deploy
+test-deploy: test-env
+	@echo "----- deploying $(REPONAME) ote -----"
+	docker push $(DOCKERREPO):test
+	kubectl --context test-dcu apply -f $(BUILDROOT)/k8s/test/deployment.yaml
 
 .PHONY: dev-deploy
 dev-deploy: dev

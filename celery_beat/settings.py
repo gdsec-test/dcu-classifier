@@ -37,6 +37,17 @@ class OTEAppConfig(AppConfig):
         super(OTEAppConfig, self).__init__()
 
 
+class TestEnvironmentAppConfig(AppConfig):
+    DB = 'testphishstory'
+    DB_HOST = '10.36.156.188'
+    DB_USER = 'testuser'
+    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.dev-godaddy.com:5672/grandma'
+
+    def __init__(self):
+        super(TestEnvironmentAppConfig, self).__init__()
+
+
 class DevelopmentAppConfig(AppConfig):
     DB = 'devphishstory'
     DB_HOST = '10.36.156.188'
@@ -54,4 +65,5 @@ class TestingConfig(AppConfig):
 config_by_name = {'dev': DevelopmentAppConfig,
                   'prod': ProductionAppConfig,
                   'ote': OTEAppConfig,
+                  'testenv': TestEnvironmentAppConfig,
                   'test': TestingConfig}

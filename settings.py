@@ -78,6 +78,20 @@ class DevelopmentAppConfig(AppConfig):
         super(DevelopmentAppConfig, self).__init__()
 
 
+class TestEnvironmentAppConfig(AppConfig):
+    DB = 'testphishstory'
+    DB_HOST = '10.36.156.188'
+    DB_USER = 'testuser'
+    EXCHANGE = 'testclassifier'
+    ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
+    SCAN_SHOPPER_ID = ''
+    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
+    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.dev-godaddy.com:5672/grandma'
+
+    def __init__(self):
+        super(TestEnvironmentAppConfig, self).__init__()
+
+
 class TestingConfig(AppConfig):
     DBURL = 'mongodb://localhost/devphishstory'
 
@@ -95,4 +109,5 @@ class TestingConfig(AppConfig):
 config_by_name = {'dev': DevelopmentAppConfig,
                   'prod': ProductionAppConfig,
                   'ote': OTEAppConfig,
+                  'testenv': TestEnvironmentAppConfig,
                   'test': TestingConfig}

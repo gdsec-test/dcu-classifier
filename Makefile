@@ -68,6 +68,12 @@ dev: prep
 	docker build -t $(DOCKERREPO):dev $(BUILDROOT)
 	docker build -t docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev -f Dockerfile.wiremock $(BUILDROOT)
 
+.PHONY: test-env
+test-env: prep
+	@echo "----- building $(REPONAME) test -----"
+	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/test/dcu-classifier.deployment.yaml $(BUILDROOT)/k8s/test/dcu-scanner.deployment.yaml
+	docker build -t $(DOCKERREPO):test $(BUILDROOT)
+
 .PHONY: prod-deploy
 prod-deploy: prod
 	@echo "----- deploying $(REPONAME) prod -----"
@@ -81,6 +87,13 @@ ote-deploy: ote
 	docker push $(DOCKERREPO):ote
 	kubectl --context ote-dcu apply -f $(BUILDROOT)/k8s/ote/dcu-classifier.deployment.yaml --record
 	kubectl --context ote-dcu apply -f $(BUILDROOT)/k8s/ote/dcu-scanner.deployment.yaml --record
+
+.PHONY: test-deploy
+test-deploy: test-env
+	@echo "----- deploying $(REPONAME) ote -----"
+	docker push $(DOCKERREPO):test
+	kubectl --context test-dcu apply -f $(BUILDROOT)/k8s/test/dcu-classifier.deployment.yaml 
+	kubectl --context test-dcu apply -f $(BUILDROOT)/k8s/test/dcu-scanner.deployment.yaml
 
 .PHONY: dev-deploy
 dev-deploy: dev

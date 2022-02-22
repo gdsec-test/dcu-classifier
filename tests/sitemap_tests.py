@@ -1,8 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
+from unittest import TestCase
 
 from mock import patch
-from nose.tools import assert_equals, assert_false, assert_true
 
 from service.parsers.parse_sitemap import SitemapParser
 
@@ -128,7 +128,7 @@ def mocked_requests_get(*args, **kwargs):
     return MockResponse(None, 404)
 
 
-class TestSitemapParser:
+class TestSitemapParser(TestCase):
     DAYS_TO_GO_BACK = 1
     SITEMAP_URL_GOOD = 'http://example.com/sitemap1.xml'
     SITEMAP_URL_BAD = 'http://example.com/unknown_file.xml'
@@ -152,8 +152,8 @@ class TestSitemapParser:
         :return:
         """
         urls = self._parser.get_urls_from_web(self.SITEMAP_GZIP_URL_GOOD)
-        assert_true('http://impcat.com/estimates/' in urls)
-        assert_equals(len(urls), 2)
+        self.assertTrue('http://impcat.com/estimates/' in urls)
+        self.assertEqual(len(urls), 2)
         mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
@@ -163,8 +163,8 @@ class TestSitemapParser:
         :return:
         """
         urls = self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_3)
-        assert_true(self.EXPECTED_URL in urls)
-        assert_equals(len(urls), 2)
+        self.assertTrue(self.EXPECTED_URL in urls)
+        self.assertEqual(len(urls), 2)
         mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
@@ -175,8 +175,8 @@ class TestSitemapParser:
         :return:
         """
         urls = self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD_4)
-        assert_true(self.EXPECTED_URL in urls)
-        assert_equals(len(urls), 4)
+        self.assertTrue(self.EXPECTED_URL in urls)
+        self.assertEqual(len(urls), 4)
         mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
@@ -186,7 +186,7 @@ class TestSitemapParser:
         file which points back to it.  Should avoid cyclical redundancy
         :return:
         """
-        assert_equals(self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD), [])
+        self.assertEqual(self._parser.get_urls_from_web(self.SITEMAP_URL_GOOD), [])
         mock_get.assert_called()
 
     @patch('requests.get', side_effect=mocked_requests_get)
@@ -195,7 +195,7 @@ class TestSitemapParser:
         Fails on a bad url
         :return:
         """
-        assert_equals(self._parser.get_urls_from_web(self.SITEMAP_URL_BAD), [])
+        self.assertEqual(self._parser.get_urls_from_web(self.SITEMAP_URL_BAD), [])
         mock_get.assert_called()
 
     def test_date_within_threshold_pass(self):
@@ -203,11 +203,11 @@ class TestSitemapParser:
         Threshold is 1 day, and passes with today's date
         :return:
         """
-        assert_true(self._parser._date_within_threshold(self._todays_date))
+        self.assertTrue(self._parser._date_within_threshold(self._todays_date))
 
     def test_date_within_threshold_fail_out_of_range(self):
         """
         Threshold is 1 day, and fails with date from 2 days ago
         :return:
         """
-        assert_false(self._parser._date_within_threshold(self._two_days_ago))
+        self.assertFalse(self._parser._date_within_threshold(self._two_days_ago))

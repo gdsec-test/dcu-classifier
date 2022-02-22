@@ -27,7 +27,7 @@ tools: flake8 isort
 .PHONY: test
 test:
 	@echo "----- Running tests -----"
-	sysenv=test nosetests tests
+	sysenv=test python -m unittest discover -s ./tests -p *_tests.py
 
 .PHONY: testcov
 testcov:

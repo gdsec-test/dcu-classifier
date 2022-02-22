@@ -1,6 +1,7 @@
+from unittest import TestCase
+
 import requests
 from mock import patch
-from nose.tools import assert_equal
 
 from service.classifiers.ml_api import MLAPI
 from service.utils.urihelper import URIHelper
@@ -26,7 +27,7 @@ class MockResponseGood(MockResponseBad):
         return self.__dict__
 
 
-class TestMLAPI:
+class TestMLAPI(TestCase):
     URI = 'http://some.uri'
     HTML = 'Some HTML'
     DEFAULT_FRAUD_SCORE = -1.0
@@ -34,21 +35,21 @@ class TestMLAPI:
     POST_METHOD = 'post'
     GET_SITE_DATE_METHOD = 'get_site_data'
 
-    def __init__(self):
+    def setUp(self):
         config = TestingConfig()
         self._ml_api = MLAPI(config)
 
     @patch.object(requests, POST_METHOD, return_value=MockResponseBad())
     @patch.object(URIHelper, GET_SITE_DATE_METHOD, return_value=HTML)
     def test_get_score_exception_returns_default_fraud_score(self, mock_site_data, mock_post):
-        assert_equal(self._ml_api.get_score(self.URI), self.DEFAULT_FRAUD_SCORE)
+        self.assertEqual(self._ml_api.get_score(self.URI), self.DEFAULT_FRAUD_SCORE)
 
     @patch.object(requests, POST_METHOD, return_value=MockResponseGood(not_fraud_score='some value'))
     @patch.object(URIHelper, GET_SITE_DATE_METHOD, return_value=HTML)
     def test_get_score_200_post_no_fraud_score_returns_default_fraud_score(self, mock_site_data, mock_post):
-        assert_equal(self._ml_api.get_score(self.URI), self.DEFAULT_FRAUD_SCORE)
+        self.assertEqual(self._ml_api.get_score(self.URI), self.DEFAULT_FRAUD_SCORE)
 
     @patch.object(requests, POST_METHOD, return_value=MockResponseGood(fraud_score=VALID_FRAUD_SCORE))
     @patch.object(URIHelper, GET_SITE_DATE_METHOD, return_value=HTML)
     def test_get_score_200_post_returns_valid_fraud_score(self, mock_site_data, mock_post):
-        assert_equal(self._ml_api.get_score(self.URI), self.VALID_FRAUD_SCORE)
+        self.assertEqual(self._ml_api.get_score(self.URI), self.VALID_FRAUD_SCORE)

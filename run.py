@@ -8,8 +8,12 @@ import yaml
 from celery import Celery, Task
 from celery.utils.log import get_task_logger
 from dcustructuredlogging import celerylogger  # noqa: F401
+from elasticapm import Client, instrument
+from elasticapm.contrib.celery import (register_exception_tracking,
+                                       register_instrumentation)
 from requests.exceptions import RequestException
 
+from apm import register_dcu_transaction_handler
 from celeryconfig import CeleryConfig
 from service.classifiers.ml_api import MLAPI
 from service.classifiers.ursula import UrlClassification, UrsulaAPI
@@ -21,6 +25,13 @@ config = config_by_name[env]()
 
 celery = Celery()
 celery.config_from_object(CeleryConfig(config))
+
+instrument()
+apm = Client(service_name=f'{os.getenv("WORKER_MODE")}-service', env=env)
+register_exception_tracking(apm)
+register_instrumentation(apm)
+register_dcu_transaction_handler(apm)
+
 logger = get_task_logger('celery.tasks')
 
 log_level = os.getenv('LOG_LEVEL', 'INFO')

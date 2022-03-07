@@ -9,7 +9,7 @@ RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x
 RUN tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 -C /usr/local/share/
 RUN ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/
 
-COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh /app/
+COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh ./apm.py /app/
 COPY . /tmp
 
 RUN pip install -U pip

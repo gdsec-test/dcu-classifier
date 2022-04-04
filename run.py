@@ -129,16 +129,10 @@ class ClassifyTask(Task):
         :param uri: string representing a URI
         :return: None
         """
-        fraud_score = self.ml_api.get_score(uri)
-        self._logger.info('URI {} assigned fraud_score: {}'.format(uri, fraud_score))
-        if fraud_score >= self.MIN_FRAUD_SCORE_TO_CREATE_TICKET:
+        if config.URSULA_API_ENABLED:
             try:
-                self._create_ticket(uri, fraud_score)
-            except Exception as e:
-                self._logger.error(f'Error posting ticket for {uri}: {e}')
-        elif config.URSULA_API_ENABLED:
-            try:
-                (classification, _) = self._ursula.classify_url(uri)
+                (classification, score) = self._ursula.classify_url(uri)
+                self._logger.info(f'URI {uri} assigned fraud_score f{score}, classification {classification}')
                 if classification == UrlClassification.Phishing:
                     self._create_ticket(uri)
             except Exception as e:

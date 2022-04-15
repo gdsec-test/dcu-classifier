@@ -5,12 +5,13 @@ from json import loads
 
 import requests
 import yaml
-from celery import Celery, Task
+from celery import Celery, Task, bootsteps
 from celery.utils.log import get_task_logger
 from dcustructuredlogging import celerylogger  # noqa: F401
 from elasticapm import Client, instrument
 from elasticapm.contrib.celery import (register_exception_tracking,
                                        register_instrumentation)
+from kombu.common import QoS
 from requests.exceptions import RequestException
 
 from apm import register_dcu_transaction_handler
@@ -35,6 +36,27 @@ register_dcu_transaction_handler(apm)
 logger = get_task_logger('celery.tasks')
 
 log_level = os.getenv('LOG_LEVEL', 'INFO')
+
+
+# turning off global qos in celery
+class NoChannelGlobalQoS(bootsteps.StartStopStep):
+    requires = {'celery.worker.consumer.tasks:Tasks'}
+
+    def start(self, c):
+        qos_global = False
+
+        c.connection.default_channel.basic_qos(0, c.initial_prefetch_count, qos_global)
+
+        def set_prefetch_count(prefetch_count):
+            return c.task_consumer.qos(
+                prefetch_count=prefetch_count,
+                apply_global=qos_global,
+            )
+
+        c.qos = QoS(set_prefetch_count, c.initial_prefetch_count)
+
+
+celery.steps['consumer'].add(NoChannelGlobalQoS)
 
 
 def replace_dict(dict_to_replace):

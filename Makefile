@@ -78,8 +78,8 @@ test-env: prep
 prod-deploy: prod
 	@echo "----- deploying $(REPONAME) prod -----"
 	docker push $(DOCKERREPO):$(COMMIT)
-	kubectl --context prod-admin apply -f $(BUILDROOT)/k8s/prod/dcu-classifier.deployment.yaml --record
-	kubectl --context prod-admin apply -f $(BUILDROOT)/k8s/prod/dcu-scanner.deployment.yaml --record
+	kubectl --context prod-dcu apply -f $(BUILDROOT)/k8s/prod/dcu-classifier.deployment.yaml --record
+	kubectl --context prod-dcu apply -f $(BUILDROOT)/k8s/prod/dcu-scanner.deployment.yaml --record
 
 .PHONY: ote-deploy
 ote-deploy: ote
@@ -100,8 +100,8 @@ dev-deploy: dev
 	@echo "----- deploying $(REPONAME) dev -----"
 	docker push $(DOCKERREPO):dev
 	docker push docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
-	kubectl --context dev-admin apply -f $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yaml --record
-	kubectl --context dev-admin apply -f $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yaml --record
+	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-classifier.deployment.yaml --record
+	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/dcu-scanner.deployment.yaml --record
 
 .PHONY: clean
 clean:

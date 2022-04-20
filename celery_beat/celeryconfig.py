@@ -12,9 +12,9 @@ class CeleryConfig:
     task_acks_late = True
     worker_prefetch_multiplier = 1
     worker_send_task_events = False
+    WORKER_ENABLE_REMOTE_CONTROL = False
 
     def __init__(self, app_settings: AppConfig):
-        self.BROKER_PASS = app_settings.BROKER_PASS
         self.broker_url = app_settings.BROKER_URL
 
         self.result_backend = app_settings.DBURL

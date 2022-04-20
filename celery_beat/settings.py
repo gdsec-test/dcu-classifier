@@ -7,8 +7,8 @@ class AppConfig(object):
     DBURL = 'localhost'
     DB_USER = 'dbuser'
     DB_HOST = 'localhost'
-    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
-    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.dev-godaddy.com:5672/grandma'
+    QUEUE_TYPE = os.getenv('QUEUE_TYPE')
+    BROKER_URL = os.getenv('MULTIPLE_BROKERS') if QUEUE_TYPE == 'quorum' else os.getenv('SINGLE_BROKER')
 
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS', 'password'))
@@ -19,8 +19,6 @@ class ProductionAppConfig(AppConfig):
     DB = 'phishstory'
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_p_phishv2'
-    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
-    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -30,8 +28,6 @@ class OTEAppConfig(AppConfig):
     DB = 'otephishstory'
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_o_phish'
-    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
-    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.godaddy.com:5672/grandma'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -41,8 +37,6 @@ class TestEnvironmentAppConfig(AppConfig):
     DB = 'testphishstory'
     DB_HOST = '10.36.156.188'
     DB_USER = 'testuser'
-    BROKER_PASS = quote(os.getenv('BROKER_PASS', 'password'))
-    BROKER_URL = 'amqp://02d1081iywc7Av2:' + BROKER_PASS + '@rmq-dcu.int.dev-godaddy.com:5672/grandma'
 
     def __init__(self):
         super(TestEnvironmentAppConfig, self).__init__()

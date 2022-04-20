@@ -19,9 +19,10 @@ class CeleryConfig:
     task_track_started = True
     worker_concurrency = 2
     result_expires = 86400  # One day in seconds
+    WORKER_ENABLE_REMOTE_CONTROL = False
 
     @staticmethod
-    def _get_queues(exchange):
+    def _get_queues(app_settings):
         env = os.getenv('sysenv', 'dev')
 
         queues = ()
@@ -32,31 +33,29 @@ class CeleryConfig:
             ''' If this is the prod environment, listen to celery queue to run db cleanup.
             This code should be temporary once we switch over to environment based vhosts. 6 Sept 2018.
             '''
+            # Listen to celery queue to run db cleanup
             queues = (
-                Queue('celery', Exchange('celery'), routing_key='celery'),)  # Listen to celery queue to run db cleanup
-
+                Queue('celery', exchange=Exchange('celery'), routing_key='celery',
+                      queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),)
         if os.getenv('WORKER_MODE') == 'classify':
             queues += (
-                Queue(queue_modifier + 'classify_tasks', exchange=Exchange(exchange, type='topic'),
-                      routing_key='classify.request'),
+                Queue(queue_modifier + 'classify_tasks', exchange=Exchange(app_settings.EXCHANGE, type='topic'),
+                      routing_key='classify.request', queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),
             )
         else:
             queues += (
-                Queue(queue_modifier + 'scan_tasks', exchange=Exchange(exchange, type='topic'),
-                      routing_key='scan.request'),
+                Queue(queue_modifier + 'scan_tasks', exchange=Exchange(app_settings.EXCHANGE, type='topic'),
+                      routing_key='scan.request', queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),
             )
 
         return queues
 
     def __init__(self, app_settings: AppConfig):
-        self.broker_url = os.getenv('BROKER_URL')  # For local docker-compose testing
-        if not self.broker_url:
-            self.BROKER_PASS = app_settings.BROKER_PASS
-            self.broker_url = app_settings.BROKER_URL
+        self.broker_url = app_settings.BROKER_URL
 
         self.result_backend = app_settings.DBURL
         self.mongodb_backend_settings = {
             'database': app_settings.DB,
             'taskmeta_collection': 'classifier-celery'
         }
-        self.task_queues = CeleryConfig._get_queues(app_settings.EXCHANGE)
+        self.task_queues = CeleryConfig._get_queues(app_settings)

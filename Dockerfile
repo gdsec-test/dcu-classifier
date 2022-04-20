@@ -12,6 +12,11 @@ RUN ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local
 COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh ./apm.py /app/
 COPY . /tmp
 
+# install custom root certificates
+RUN mkdir -p /usr/local/share/ca-certificates/
+RUN cp /tmp/certs/* /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 RUN pip install -U pip
 RUN PIP_CONFIG_FILE=/tmp/pip_config/pip.conf pip install --compile /tmp
 

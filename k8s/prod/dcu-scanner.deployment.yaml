@@ -49,10 +49,7 @@ spec:
               value: /mlapicerts/tls.key
             # TODO CMAPT-5032: remove single_broker and queue_type
             - name: QUEUE_TYPE
-              valueFrom:
-                configMapKeyRef:
-                  name: quorum-migration
-                  key: queuetype
+              value: quorum
             - name: SINGLE_BROKER
               valueFrom:
                 secretKeyRef:

@@ -19,7 +19,7 @@ class CeleryConfig:
     task_track_started = True
     worker_concurrency = 2
     result_expires = 86400  # One day in seconds
-    WORKER_ENABLE_REMOTE_CONTROL = False
+    WORKER_ENABLE_REMOTE_CONTROL = True
 
     @staticmethod
     def _get_queues(app_settings):

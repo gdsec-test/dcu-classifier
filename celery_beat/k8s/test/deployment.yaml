@@ -29,7 +29,7 @@ spec:
           - name: BUILD_DATE
             value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
           - name: sysenv
-            value: testenv
+            value: test
           # TODO CMAPT-5032: remove single_broker and queue_type
           - name: QUEUE_TYPE
             valueFrom:

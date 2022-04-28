@@ -59,5 +59,5 @@ class TestingConfig(AppConfig):
 config_by_name = {'dev': DevelopmentAppConfig,
                   'prod': ProductionAppConfig,
                   'ote': OTEAppConfig,
-                  'testenv': TestEnvironmentAppConfig,
-                  'test': TestingConfig}
+                  'test': TestEnvironmentAppConfig,
+                  'unit-test': TestingConfig}

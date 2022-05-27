@@ -51,17 +51,6 @@ spec:
               value: /mlapicerts/tls.crt
             - name: ML_API_KEY
               value: /mlapicerts/tls.key
-            # TODO CMAPT-5032: remove single_broker and queue_type
-            - name: QUEUE_TYPE
-              valueFrom:
-                configMapKeyRef:
-                  name: quorum-migration
-                  key: queuetype
-            - name: SINGLE_BROKER
-              valueFrom:
-                secretKeyRef:
-                  name: amqp-connection-string-v2
-                  key: url
             - name: MULTIPLE_BROKERS
               valueFrom:
                 secretKeyRef:

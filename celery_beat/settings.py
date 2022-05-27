@@ -7,8 +7,7 @@ class AppConfig(object):
     DBURL = 'localhost'
     DB_USER = 'dbuser'
     DB_HOST = 'localhost'
-    QUEUE_TYPE = os.getenv('QUEUE_TYPE')
-    BROKER_URL = os.getenv('MULTIPLE_BROKERS') if QUEUE_TYPE == 'quorum' else os.getenv('SINGLE_BROKER')
+    BROKER_URL = os.getenv('MULTIPLE_BROKERS')
 
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS', 'password'))

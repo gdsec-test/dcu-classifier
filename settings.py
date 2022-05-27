@@ -26,8 +26,7 @@ class AppConfig(object):
     SSO_USER = os.getenv('SSO_USER', 'user')
     SSO_PASSWORD = os.getenv('SSO_PASSWORD', 'password')
     SCAN_SHOPPER_ID = 'empty'
-    QUEUE_TYPE = os.getenv('QUEUE_TYPE')
-    BROKER_URL = os.getenv('MULTIPLE_BROKERS') if QUEUE_TYPE == 'quorum' else os.getenv('SINGLE_BROKER')
+    BROKER_URL = os.getenv('MULTIPLE_BROKERS')
 
     def __init__(self):
         self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'

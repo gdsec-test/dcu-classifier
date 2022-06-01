@@ -3,7 +3,6 @@ apiVersion: 'apps/v1'
 kind: 'Deployment'
 metadata:
   name: 'dcu-classifier'
-  namespace: 'abuse-api-dev'
   labels:
     app: 'dcu-classifier'
 spec:
@@ -23,8 +22,7 @@ spec:
       containers:
         -
           name: 'dcu-classifier'
-          imagePullPolicy: 'Always'
-          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev'
+          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier'
           resources:
             requests:
               memory: "256Mi"
@@ -36,9 +34,10 @@ spec:
                 - '/app/health.sh'
             initialDelaySeconds: 10
             periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: env-specific-values
           env:
-            - name: BUILD_DATE
-              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
             - name: sysenv
               value: dev
             - name: LOG_LEVEL

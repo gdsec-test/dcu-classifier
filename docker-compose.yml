@@ -5,7 +5,6 @@ services:
       REDIS: redis
       sysenv: dev
       BROKER_URL: ${BROKER_URL}
-      QUEUE_TYPE: 'quorum'
       DISABLESSL: 'True'
     ports:
       - 127.0.0.1:5000:5000/tcp
@@ -25,7 +24,6 @@ services:
       ML_API_CERT: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.crt
       ML_API_KEY: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.key
       BROKER_URL: ${BROKER_URL}
-      QUEUE_TYPE: 'quorum'
       DISABLESSL: 'True'
       SSO_USER: ${SSO_USER}
       SSO_PASSWORD: ${SSO_PASSWORD}
@@ -50,7 +48,6 @@ services:
       API_TOKEN: ${API_TOKEN}
       ABUSE_API_CREATE_URL: https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets
       BROKER_URL: ${BROKER_URL}
-      QUEUE_TYPE: 'quorum'
       DISABLESSL: 'True'
       SSO_USER: ${SSO_USER}
       SSO_PASSWORD: ${SSO_PASSWORD}

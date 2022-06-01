@@ -33,19 +33,18 @@ class CeleryConfig:
             ''' If this is the prod environment, listen to celery queue to run db cleanup.
             This code should be temporary once we switch over to environment based vhosts. 6 Sept 2018.
             '''
-            # Listen to celery queue to run db cleanup
-            queues = (
-                Queue('celery', exchange=Exchange('celery'), routing_key='celery',
-                      queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),)
+            # Listen to celery queue to run db cleanup. Force this to stay on a classic queue for backwards
+            # compatibility.
+            queues = (Queue('celery', exchange=Exchange('celery'), routing_key='celery', queue_arguments={'x-queue-type': 'classic'}),)
         if os.getenv('WORKER_MODE') == 'classify':
             queues += (
                 Queue(queue_modifier + 'classify_tasks', exchange=Exchange(app_settings.EXCHANGE, type='topic'),
-                      routing_key='classify.request', queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),
+                      routing_key='classify.request', queue_arguments={'x-queue-type': 'quorum'}),
             )
         else:
             queues += (
                 Queue(queue_modifier + 'scan_tasks', exchange=Exchange(app_settings.EXCHANGE, type='topic'),
-                      routing_key='scan.request', queue_arguments={'x-queue-type': app_settings.QUEUE_TYPE}),
+                      routing_key='scan.request', queue_arguments={'x-queue-type': 'quorum'}),
             )
 
         return queues

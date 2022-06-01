@@ -14,6 +14,7 @@ prep:
 	@echo "----- preparing $(REPONAME) build -----"
 	# stage pips we will need to install in Docker build
 	# copy the app code to the build root
+	mkdir -p $(BUILDROOT)
 	cp -rp ./* $(BUILDROOT)
 
 .PHONY: prod

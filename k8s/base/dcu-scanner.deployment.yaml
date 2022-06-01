@@ -39,8 +39,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           env:
-            - name: BUILD_DATE
-              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
             - name: sysenv
               value: dev
             - name: LOG_LEVEL

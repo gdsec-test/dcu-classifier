@@ -1,7 +1,8 @@
-FROM python:3.7.10-slim
+FROM docker-dcu-local.artifactory.secureserver.net/dcu-python3.7:3.3
 LABEL MAINTAINER="dcueng@godaddy.com"
 
-RUN addgroup dcu && adduser --disabled-password --disabled-login --no-create-home --ingroup dcu --system dcu
+USER root
+RUN adduser --disabled-password --disabled-login --no-create-home --ingroup dcu --system dcu
 RUN apt-get update && apt-get install -y gcc bzip2 libfreetype6 libfontconfig1 wget -y
 
 # We need to pull this specific phantomjs. We want to maintain consistency with GDBS.
@@ -12,10 +13,6 @@ RUN ln -s /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local
 COPY ./run.py ./celeryconfig.py ./settings.py ./logging.yaml ./health.sh ./apm.py /app/
 COPY . /tmp
 
-# install custom root certificates
-RUN mkdir -p /usr/local/share/ca-certificates/
-RUN cp /tmp/certs/* /usr/local/share/ca-certificates/
-RUN update-ca-certificates
 
 RUN pip install -U pip
 RUN PIP_CONFIG_FILE=/tmp/pip_config/pip.conf pip install --compile /tmp

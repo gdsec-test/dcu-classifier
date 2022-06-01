@@ -38,10 +38,6 @@ spec:
             - configMapRef:
                 name: env-specific-values
           env:
-            - name: sysenv
-              value: dev
-            - name: LOG_LEVEL
-              value: DEBUG
             - name: WORKER_MODE
               value: classify
             - name: ML_API_CERT
@@ -78,8 +74,6 @@ spec:
                 secretKeyRef:
                   name: apm-access
                   key: secret
-            - name: ELASTIC_APM_ENVIRONMENT
-              value: dev
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

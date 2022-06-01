@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM docker-dcu-local.artifactory.secureserver.net/dcu-python3.7:3.3
 
 WORKDIR /app/
 

@@ -3,18 +3,18 @@ kind: Kustomization
 resources:
 - ../base
 
-namespace: abuse-api-ote
+namespace: abuse-api-prod
 images:
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-classifier
-  newTag: ote
+  newTag: prod
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-scanner
-  newTag: ote
+  newTag: prod
 
 configMapGenerator:
 - literals:
-  - sysenv=ote
-  - LOG_LEVEL=DEBUG
-  - ABUSE_API_CREATE_URL=http://api.abuse-api-ote.svc.cluster.local:5000/v1/abuse/tickets
+  - sysenv=prod
+  - LOG_LEVEL=INFO
+  - ABUSE_API_CREATE_URL=http://api.abuse-api-prod.svc.cluster.local:5000/v1/abuse/tickets
   - URSULA_API_URL=https://api.phishfeed.com/ursula/v1
-  - ELASTIC_APM_ENVIRONMENT=ote
+  - ELASTIC_APM_ENVIRONMENT=prod
   name: env-specific-values

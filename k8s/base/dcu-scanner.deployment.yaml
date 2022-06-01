@@ -3,7 +3,6 @@ apiVersion: 'apps/v1'
 kind: 'Deployment'
 metadata:
   name: 'dcu-scanner'
-  namespace: 'abuse-api-dev'
   labels:
     app: 'dcu-scanner'
 spec:
@@ -25,7 +24,6 @@ spec:
           imagePullPolicy: Always
           image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
         - name: 'dcu-scanner'
-          imagePullPolicy: 'Always'
           image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev'
           resources:
             requests:
@@ -39,10 +37,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           env:
-            - name: sysenv
-              value: dev
-            - name: LOG_LEVEL
-              value: DEBUG
             - name: WORKER_MODE
               value: scan
             - name: ML_API_CERT
@@ -59,17 +53,16 @@ spec:
                 secretKeyRef:
                   name: db-phishstory-v2
                   key: password
+            - name: URSULA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ursula-api-token
+                  key: token
             - name: API_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: api-scanapi-token
                   key: token
-            - name: ABUSE_API_CREATE_URL
-              value: http://api.abuse-api-dev.svc.cluster.local:5000/v1/abuse/tickets
-            - name: URSULA_API_URL
-              value: http://localhost:8080/ursula/v1
-            - name: URSULA_API_KEY
-              value: api-key
             - name: URSULA_API_ENABLED
               value: 'True'
             - name: SSO_USER
@@ -92,8 +85,6 @@ spec:
                 secretKeyRef:
                   name: apm-access
                   key: secret
-            - name: ELASTIC_APM_ENVIRONMENT
-              value: dev
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

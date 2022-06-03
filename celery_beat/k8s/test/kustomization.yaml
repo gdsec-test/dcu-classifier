@@ -10,5 +10,5 @@ images:
 
 configMapGenerator:
 - literals:
-  - sysenv=dev
+  - sysenv=test
   name: env-specific-values

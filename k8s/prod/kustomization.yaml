@@ -9,6 +9,11 @@ images:
   newTag: prod
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-scanner
   newTag: prod
+replicas:
+  - count: 2
+    name: dcu-classifier
+  - count: 4
+    name: dcu-scanner
 
 configMapGenerator:
 - literals:

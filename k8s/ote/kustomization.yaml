@@ -4,6 +4,7 @@ resources:
 - ../base
 
 namespace: abuse-api-ote
+
 images:
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-classifier
   newTag: ote

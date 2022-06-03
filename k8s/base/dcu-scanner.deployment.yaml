@@ -20,11 +20,8 @@ spec:
         -
           name: 'dcu-artifactory-creds'
       containers:
-        - name: wiremock
-          imagePullPolicy: Always
-          image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
         - name: 'dcu-scanner'
-          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:dev'
+          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier'
           resources:
             requests:
               memory: "256Mi"

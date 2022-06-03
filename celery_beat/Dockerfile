@@ -1,8 +1,8 @@
 FROM docker-dcu-local.artifactory.secureserver.net/dcu-python3.7:3.3
 
+USER root
 WORKDIR /app/
 
 ADD ./*.py /app/
 RUN pip install --compile celery[mongodb]
-
 ENTRYPOINT celery -A run beat -l INFO

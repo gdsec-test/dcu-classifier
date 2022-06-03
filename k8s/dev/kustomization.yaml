@@ -4,11 +4,25 @@ resources:
 - ../base
 
 namespace: abuse-api-dev
+
+patches:
+- patch: |-
+    - op: add
+      path: "/spec/template/spec/containers/1"
+      value:
+        name: wiremock
+        imagePullPolicy: Always
+        image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
+  target:
+    kind: Deployment
+    name: dcu-scanner
+
 images:
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-classifier
   newTag: dev
 - name: docker-dcu-local.artifactory.secureserver.net/dcu-scanner
   newTag: dev
+
 
 configMapGenerator:
 - literals:

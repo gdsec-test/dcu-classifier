@@ -62,7 +62,7 @@ class OTEAppConfig(AppConfig):
 
 class DevelopmentAppConfig(AppConfig):
     DB = 'devphishstory'
-    DB_HOST = '10.36.156.188'
+    DB_HOST = '10.36.190.222'
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
 
@@ -75,7 +75,7 @@ class DevelopmentAppConfig(AppConfig):
 
 class TestEnvironmentAppConfig(AppConfig):
     DB = 'testphishstory'
-    DB_HOST = '10.36.156.188'
+    DB_HOST = '10.36.190.222'
     DB_USER = 'testuser'
     EXCHANGE = 'testclassifier'
     ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'

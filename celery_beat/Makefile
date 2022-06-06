@@ -57,7 +57,7 @@ prod-deploy: prod
 .PHONY: ote-deploy
 ote-deploy: ote
 	$(eval commit:=$(shell git rev-parse --short HEAD))
-	read -p "About to build production image from main branch. Are you sure? (Y/N): " response ; \
+	read -p "About to build ote image from main branch. Are you sure? (Y/N): " response ; \
 	if [[ $$response == 'N' || $$response == 'n' ]] ; then exit 1 ; fi
 	if [[ `git status --porcelain | wc -l` -gt 0 ]] ; then echo "You must stash your changes before proceeding" ; exit 1 ; fi
 	git fetch && git checkout $(build_branch)

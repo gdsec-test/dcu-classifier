@@ -6,6 +6,12 @@ COMMIT=
 BUILD_BRANCH=origin/main
 SHELL=/bin/bash
 
+define deploy_k8s
+	docker push $(DOCKERREPO):$(2)
+	cd k8s/$(1) && kustomize edit set image $$(docker inspect --format='{{index .RepoDigests 0}}' $(DOCKERREPO):$(2))
+	kubectl --context $(1)-dcu apply -k k8s/$(1)
+	cd k8s/$(1) && kustomize edit set image $(DOCKERREPO):$(1)
+endef
 
 all: prep prod
 
@@ -19,58 +25,53 @@ prep:
 
 .PHONY: prod
 prod: prep
-	@echo "----- building $(REPONAME) prod -----"
-	read -p "About to build production image from $(BUILD_BRANCH) branch. Are you sure? (Y/N): " response ; \
-	if [[ $$response == 'N' || $$response == 'n' ]] ; then exit 1 ; fi
-	if [[ `git status --porcelain | wc -l` -gt 0 ]] ; then echo "You must stash your changes before proceeding" ; exit 1 ; fi
-	git fetch && git checkout $(BUILD_BRANCH)
-	$(eval COMMIT:=$(shell git rev-parse --short HEAD))
-	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/' $(BUILDROOT)/k8s/prod/deployment.yaml
-	sed -ie 's/REPLACE_WITH_GIT_COMMIT/$(COMMIT)/' $(BUILDROOT)/k8s/prod/deployment.yaml
-	docker build -t $(DOCKERREPO):$(COMMIT) $(BUILDROOT)
-	git checkout -
+	@echo "----- building $(REPONAME) $(build_version) -----"
+	$(eval commit:=$(shell git rev-parse --short HEAD))
+	docker build -t $(DOCKERREPO):$(commit) $(BUILDROOT)
 
 .PHONY: ote
 ote: prep
 	@echo "----- building $(REPONAME) ote -----"
-	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/ote/deployment.yaml
 	docker build -t $(DOCKERREPO):ote $(BUILDROOT)
 
 .PHONY: test-env
 test-env: prep
-	@echo "----- building $(REPONAME) ote -----"
-	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/test/deployment.yaml
+	@echo "----- building $(REPONAME) test -----"
 	docker build -t $(DOCKERREPO):test $(BUILDROOT)
 
-.PHONY: dev-deploy
+.PHONY: dev
 dev: prep
 	@echo "----- building $(REPONAME) dev -----"
-	sed -ie 's/THIS_STRING_IS_REPLACED_DURING_BUILD/$(DATE)/g' $(BUILDROOT)/k8s/dev/deployment.yaml
-	docker build --no-cache -t $(DOCKERREPO):dev $(BUILDROOT)
+	docker build -t $(DOCKERREPO):dev $(BUILDROOT)
 
 .PHONY: prod-deploy
 prod-deploy: prod
-	@echo "----- deploying $(REPONAME) prod -----"
-	docker push $(DOCKERREPO):$(COMMIT)
-	kubectl --context prod-dcu apply -f $(BUILDROOT)/k8s/prod/deployment.yaml --record
+	$(eval commit:=$(shell git rev-parse --short HEAD))
+	read -p "About to build production image from main branch. Are you sure? (Y/N): " response ; \
+	if [[ $$response == 'N' || $$response == 'n' ]] ; then exit 1 ; fi
+	if [[ `git status --porcelain | wc -l` -gt 0 ]] ; then echo "You must stash your changes before proceeding" ; exit 1 ; fi
+	git fetch && git checkout $(build_branch)
+	$(call deploy_k8s,prod,$(commit))
+
 
 .PHONY: ote-deploy
 ote-deploy: ote
-	@echo "----- deploying $(REPONAME) ote -----"
-	docker push $(DOCKERREPO):ote
-	kubectl --context ote-dcu apply -f $(BUILDROOT)/k8s/ote/deployment.yaml --record
+	$(eval commit:=$(shell git rev-parse --short HEAD))
+	read -p "About to build ote image from main branch. Are you sure? (Y/N): " response ; \
+	if [[ $$response == 'N' || $$response == 'n' ]] ; then exit 1 ; fi
+	if [[ `git status --porcelain | wc -l` -gt 0 ]] ; then echo "You must stash your changes before proceeding" ; exit 1 ; fi
+	git fetch && git checkout $(build_branch)
+	$(call deploy_k8s,ote,ote)
 
 .PHONY: test-deploy
 test-deploy: test-env
 	@echo "----- deploying $(REPONAME) ote -----"
-	docker push $(DOCKERREPO):test
-	kubectl --context test-dcu apply -f $(BUILDROOT)/k8s/test/deployment.yaml
+	$(call deploy_k8s,test,test)
 
 .PHONY: dev-deploy
 dev-deploy: dev
 	@echo "----- deploying $(REPONAME) dev -----"
-	docker push $(DOCKERREPO):dev
-	kubectl --context dev-dcu apply -f $(BUILDROOT)/k8s/dev/deployment.yaml --record
+	$(call deploy_k8s,dev,dev)
 
 .PHONY: clean
 clean:

@@ -2,29 +2,26 @@
 apiVersion: 'apps/v1'
 kind: 'Deployment'
 metadata:
-  name: 'dcu-classifier'
-  namespace: 'abuse-api-ote'
+  name: 'dcu-scanner'
   labels:
-    app: 'dcu-classifier'
+    app: 'dcu-scanner'
 spec:
   replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: 'dcu-classifier'
+      app: 'dcu-scanner'
   template:
     metadata:
       labels:
-        app: 'dcu-classifier'
+        app: 'dcu-scanner'
     spec:
       imagePullSecrets:
         -
           name: 'dcu-artifactory-creds'
       containers:
-        -
-          name: 'dcu-classifier'
-          imagePullPolicy: 'Always'
-          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:ote'
+        - name: 'dcu-scanner'
+          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier'
           resources:
             requests:
               memory: "256Mi"
@@ -37,14 +34,8 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
           env:
-            - name: BUILD_DATE
-              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
-            - name: sysenv
-              value: ote
-            - name: LOG_LEVEL
-              value: DEBUG
             - name: WORKER_MODE
-              value: classify
+              value: scan
             - name: ML_API_CERT
               value: /mlapicerts/tls.crt
             - name: ML_API_KEY
@@ -59,6 +50,18 @@ spec:
                 secretKeyRef:
                   name: db-phishstory-v2
                   key: password
+            - name: URSULA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ursula-api-token
+                  key: token
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: api-scanapi-token
+                  key: token
+            - name: URSULA_API_ENABLED
+              value: 'True'
             - name: SSO_USER
               valueFrom:
                 secretKeyRef:
@@ -79,8 +82,6 @@ spec:
                 secretKeyRef:
                   name: apm-access
                   key: secret
-            - name: ELASTIC_APM_ENVIRONMENT
-              value: ote
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

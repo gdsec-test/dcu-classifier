@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../base
+
+namespace: abuse-api-dev
+
+patches:
+- patch: |-
+    - op: add
+      path: "/spec/template/spec/containers/1"
+      value:
+        name: wiremock
+        image: docker-dcu-local.artifactory.secureserver.net/dcu-classifier/wiremock:dev
+  target:
+    kind: Deployment
+    name: dcu-scanner
+
+images:
+- name: docker-dcu-local.artifactory.secureserver.net/dcu-classifier
+  newTag: dev
+- name: docker-dcu-local.artifactory.secureserver.net/dcu-scanner
+  newTag: dev
+
+
+configMapGenerator:
+- literals:
+  - sysenv=dev
+  - LOG_LEVEL=DEBUG
+  - ABUSE_API_CREATE_URL=http://api.abuse-api-dev.svc.cluster.local:5000/v1/abuse/tickets
+  - URSULA_API_URL=http://localhost:8080/ursula/v1
+  - URSULA_API_KEY=api-key
+  - ELASTIC_APM_ENVIRONMENT=dev
+  name: env-specific-values

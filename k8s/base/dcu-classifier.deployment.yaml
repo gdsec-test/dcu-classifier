@@ -2,29 +2,27 @@
 apiVersion: 'apps/v1'
 kind: 'Deployment'
 metadata:
-  name: 'dcu-scanner'
-  namespace: 'abuse-api-prod'
+  name: 'dcu-classifier'
   labels:
-    app: 'dcu-scanner'
+    app: 'dcu-classifier'
 spec:
-  replicas: 4
+  replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: 'dcu-scanner'
+      app: 'dcu-classifier'
   template:
     metadata:
       labels:
-        app: 'dcu-scanner'
+        app: 'dcu-classifier'
     spec:
       imagePullSecrets:
         -
           name: 'dcu-artifactory-creds'
       containers:
         -
-          name: 'dcu-scanner'
-          imagePullPolicy: 'Always'
-          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier:REPLACE_WITH_GIT_COMMIT'
+          name: 'dcu-classifier'
+          image: 'docker-dcu-local.artifactory.secureserver.net/dcu-classifier'
           resources:
             requests:
               memory: "256Mi"
@@ -36,13 +34,12 @@ spec:
                 - '/app/health.sh'
             initialDelaySeconds: 10
             periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: env-specific-values
           env:
-            - name: BUILD_DATE
-              value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
-            - name: sysenv
-              value: prod
             - name: WORKER_MODE
-              value: scan
+              value: classify
             - name: ML_API_CERT
               value: /mlapicerts/tls.crt
             - name: ML_API_KEY
@@ -57,22 +54,6 @@ spec:
                 secretKeyRef:
                   name: db-phishstory-v2
                   key: password
-            - name: API_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: api-scanapi-token
-                  key: token
-            - name: ABUSE_API_CREATE_URL
-              value: http://api.abuse-api-prod.svc.cluster.local:5000/v1/abuse/tickets
-            - name: URSULA_API_URL
-              value: https://api.phishfeed.com/ursula/v1
-            - name: URSULA_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ursula-api-token
-                  key: token
-            - name: URSULA_API_ENABLED
-              value: 'True'
             - name: SSO_USER
               valueFrom:
                 secretKeyRef:
@@ -93,8 +74,6 @@ spec:
                 secretKeyRef:
                   name: apm-access
                   key: secret
-            - name: ELASTIC_APM_ENVIRONMENT
-              value: prod
           volumeMounts:
             - name: tls-files-api
               mountPath: /mlapicerts

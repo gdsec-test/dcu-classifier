@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../base
+
+images:
+- name: docker-dcu-local.artifactory.secureserver.net/dcu-classifier
+  newTag: test
+- name: docker-dcu-local.artifactory.secureserver.net/dcu-scanner
+  newTag: test
+
+configMapGenerator:
+- literals:
+  - sysenv=test
+  - LOG_LEVEL=DEBUG
+  - ABUSE_API_CREATE_URL=http://api.abuse-api-test.svc.cluster.local:5000/v1/abuse/tickets
+  - URSULA_API_URL=https://api.phishfeed.com/ursula/v1
+  - ELASTIC_APM_ENVIRONMENT=test
+  name: env-specific-values

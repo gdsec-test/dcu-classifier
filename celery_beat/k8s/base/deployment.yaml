@@ -3,7 +3,6 @@ apiVersion: 'apps/v1'
 kind: 'Deployment'
 metadata:
   name: 'classifier-celery-beat'
-  namespace: 'abuse-api-prod'
   labels:
     app: 'classifier-celery-beat'
 spec:
@@ -23,13 +22,11 @@ spec:
       containers:
         -
           name: 'classifier-celery-beat'
-          imagePullPolicy: 'Always'
-          image: 'docker-dcu-local.artifactory.secureserver.net/classifier-celery-beat:REPLACE_WITH_GIT_COMMIT'
+          image: 'docker-dcu-local.artifactory.secureserver.net/classifier-celery-beat'
+          envFrom:
+            - configMapRef:
+                name: env-specific-values
           env:
-          - name: BUILD_DATE
-            value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
-          - name: sysenv
-            value: prod
           - name: MULTIPLE_BROKERS
             valueFrom:
               secretKeyRef:

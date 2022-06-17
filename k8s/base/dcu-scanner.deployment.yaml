@@ -33,6 +33,9 @@ spec:
                 - '/app/health.sh'
             initialDelaySeconds: 10
             periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: env-specific-values
           env:
             - name: WORKER_MODE
               value: scan

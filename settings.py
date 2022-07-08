@@ -42,7 +42,7 @@ class ProductionAppConfig(AppConfig):
     DB_USER = 'sau_p_phishv2'
     EXCHANGE = 'classifier'
     SSO_URL = 'https://sso.godaddy.com'
-    SCAN_SHOPPER_ID = '185469329'
+    SCAN_SHOPPER_ID = 'b3ec3417-96b8-4d86-be65-8b1a624fcb39'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -54,7 +54,7 @@ class OTEAppConfig(AppConfig):
     DB_USER = 'sau_o_phish'
     EXCHANGE = 'oteclassifier'
     SSO_URL = 'https://sso.ote-godaddy.com'
-    SCAN_SHOPPER_ID = '1500031169'
+    SCAN_SHOPPER_ID = ''
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -67,7 +67,7 @@ class DevelopmentAppConfig(AppConfig):
     EXCHANGE = 'devclassifier'
 
     ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
-    SCAN_SHOPPER_ID = '1440013'
+    SCAN_SHOPPER_ID = 'ec3a04cf-49d3-42a8-8360-7e536ba5aef8'
 
     def __init__(self):
         super(DevelopmentAppConfig, self).__init__()

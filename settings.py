@@ -22,7 +22,7 @@ class AppConfig(object):
     URSULA_API_URL = os.getenv('URSULA_API_URL', 'http://localhost:8080/ursula/v1')
     URSULA_API_KEY = os.getenv('URSULA_API_KEY', 'api-key')
     URSULA_API_ENABLED = os.getenv('URSULA_API_ENABLED', 'False') == 'True'
-    SSO_URL = 'https://sso.dev-godaddy.com'
+    SSO_URL = 'https://sso.dev-gdcorp.tools'
     SSO_USER = os.getenv('SSO_USER', 'user')
     SSO_PASSWORD = os.getenv('SSO_PASSWORD', 'password')
     SCAN_SHOPPER_ID = 'empty'
@@ -41,7 +41,7 @@ class ProductionAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_p_phishv2'
     EXCHANGE = 'classifier'
-    SSO_URL = 'https://sso.godaddy.com'
+    SSO_URL = 'https://sso.gdcorp.tools'
     SCAN_SHOPPER_ID = 'b3ec3417-96b8-4d86-be65-8b1a624fcb39'
 
     def __init__(self):
@@ -53,7 +53,7 @@ class OTEAppConfig(AppConfig):
     DB_HOST = '10.22.9.209'
     DB_USER = 'sau_o_phish'
     EXCHANGE = 'oteclassifier'
-    SSO_URL = 'https://sso.ote-godaddy.com'
+    SSO_URL = 'https://sso.ote-gdcorp.tools'
     SCAN_SHOPPER_ID = ''
 
     def __init__(self):

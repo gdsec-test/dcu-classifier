@@ -15,7 +15,7 @@ configMapGenerator:
 - literals:
   - sysenv=ote
   - LOG_LEVEL=DEBUG
-  - ABUSE_API_CREATE_URL=http://api.abuse-api-ote.svc.cluster.local:5000/v1/abuse/tickets
+  - ABUSE_API_CREATE_URL=https://abuse.api.int.ote-godaddy.com/v1/abuse/tickets
   - URSULA_API_URL=https://api.phishfeed.com/ursula/v1
   - ELASTIC_APM_ENVIRONMENT=ote
   name: env-specific-values

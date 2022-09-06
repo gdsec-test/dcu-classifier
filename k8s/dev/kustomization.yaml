@@ -27,7 +27,7 @@ configMapGenerator:
 - literals:
   - sysenv=dev
   - LOG_LEVEL=DEBUG
-  - ABUSE_API_CREATE_URL=http://api.abuse-api-dev.svc.cluster.local:5000/v1/abuse/tickets
+  - ABUSE_API_CREATE_URL=https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets
   - URSULA_API_URL=http://localhost:8080/ursula/v1
   - URSULA_API_KEY=api-key
   - ELASTIC_APM_ENVIRONMENT=dev

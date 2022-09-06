@@ -13,7 +13,7 @@ configMapGenerator:
 - literals:
   - sysenv=test
   - LOG_LEVEL=DEBUG
-  - ABUSE_API_CREATE_URL=http://api.abuse-api-test.svc.cluster.local:5000/v1/abuse/tickets
+  - ABUSE_API_CREATE_URL=https://abuse.api.int.test-godaddy.com/v1/abuse/tickets
   - URSULA_API_URL=https://api.phishfeed.com/ursula/v1
   - ELASTIC_APM_ENVIRONMENT=test
   name: env-specific-values

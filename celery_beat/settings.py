@@ -34,7 +34,7 @@ class OTEAppConfig(AppConfig):
 
 class TestEnvironmentAppConfig(AppConfig):
     DB = 'testphishstory'
-    DB_HOST = '10.36.190.222'
+    DB_HOST = 'mongodb.cset.int.dev-gdcorp.tools'
     DB_USER = 'testuser'
 
     def __init__(self):
@@ -43,7 +43,7 @@ class TestEnvironmentAppConfig(AppConfig):
 
 class DevelopmentAppConfig(AppConfig):
     DB = 'devphishstory'
-    DB_HOST = '10.36.190.222'
+    DB_HOST = 'mongodb.cset.int.dev-gdcorp.tools'
     DB_USER = 'devuser'
 
     def __init__(self):

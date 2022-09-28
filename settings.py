@@ -12,10 +12,6 @@ class AppConfig(object):
     DB_HOST = 'localhost'
     MAX_AGE = 1  # Maximum number of days old a URL can be for sitemap extraction
 
-    # Machine Learning API
-    ML_API = 'https://shopperml.godaddy.com/v1/predict/dcu_fraud_html/'
-    DEFAULT_FRAUD_SCORE = -1.0
-
     API_TOKEN = os.getenv('API_TOKEN', 'token')
     API_CREATE_URL = os.getenv('ABUSE_API_CREATE_URL', 'http://abuse-api:5000/v1/abuse/tickets')
 
@@ -32,8 +28,6 @@ class AppConfig(object):
         self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
         self.DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify'  # should be either classify or scan
-        self.ML_API_CERT = os.getenv('ML_API_CERT')
-        self.ML_API_KEY = os.getenv('ML_API_KEY')
 
 
 class ProductionAppConfig(AppConfig):
@@ -66,7 +60,6 @@ class DevelopmentAppConfig(AppConfig):
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
 
-    ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
     SCAN_SHOPPER_ID = 'ec3a04cf-49d3-42a8-8360-7e536ba5aef8'
 
     def __init__(self):
@@ -78,7 +71,6 @@ class TestEnvironmentAppConfig(AppConfig):
     DB_HOST = '10.36.190.222'
     DB_USER = 'testuser'
     EXCHANGE = 'testclassifier'
-    ML_API = 'https://shopperml.test-godaddy.com/v1/predict/dcu_fraud_html/'
     SCAN_SHOPPER_ID = ''
 
     def __init__(self):
@@ -87,10 +79,6 @@ class TestEnvironmentAppConfig(AppConfig):
 
 class TestingConfig(AppConfig):
     DBURL = 'mongodb://localhost/devphishstory'
-
-    ML_API = TEST
-    ML_API_CERT = TEST
-    ML_API_KEY = TEST
 
     URSULA_API_ENABLED = False
     URSULA_API_URL = 'http://localhost/ursula/v1'

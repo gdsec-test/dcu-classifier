@@ -21,8 +21,6 @@ services:
       LOG_LEVEL: DEBUG
       DB_PASS: ${DB_PASS}
       WORKER_MODE: 'classify'
-      ML_API_CERT: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.crt
-      ML_API_KEY: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.key
       BROKER_URL: ${BROKER_URL}
       DISABLESSL: 'True'
       SSO_USER: ${SSO_USER}
@@ -43,8 +41,6 @@ services:
       LOG_LEVEL: DEBUG
       DB_PASS: ${DB_PASS}
       WORKER_MODE: 'scan'
-      ML_API_CERT: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.crt
-      ML_API_KEY: /tmp/certs/apiuser.cmap.int.dev-godaddy.com.key
       API_TOKEN: ${API_TOKEN}
       ABUSE_API_CREATE_URL: https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets
       BROKER_URL: ${BROKER_URL}

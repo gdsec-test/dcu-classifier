@@ -12,7 +12,6 @@ from kombu.common import QoS
 from requests.exceptions import RequestException
 
 from celeryconfig import CeleryConfig
-from service.classifiers.ml_api import MLAPI
 from service.classifiers.ursula import UrlClassification, UrsulaAPI
 from service.parsers.parse_sitemap import SitemapParser
 from settings import config_by_name
@@ -76,11 +75,6 @@ else:
     logging.basicConfig(level=logging.INFO)
 logging.raiseExceptions = True
 
-if not config.ML_API_CERT or not config.ML_API_KEY:
-    message = 'Missing ML_API certificate or key'
-    logger.fatal(message)
-    raise ValueError(message)
-
 
 class ClassifyTask(Task):
     """
@@ -89,10 +83,8 @@ class ClassifyTask(Task):
     MIN_FRAUD_SCORE_TO_CREATE_TICKET = 0.95
 
     def __init__(self):
-        self._ml_api = MLAPI(config)
         self._parser = SitemapParser(config.MAX_AGE)
         self._logger = logging.getLogger(__name__)
-        self._default_fraud_score = config.DEFAULT_FRAUD_SCORE
         self._ursula = UrsulaAPI(config)
         self._sso_endpoint = f'{config.SSO_URL}/v1/api/token'
         self._user = config.SSO_USER
@@ -111,10 +103,6 @@ class ClassifyTask(Task):
         except Exception as e:
             self._logger.error(e)
         return None
-
-    @property
-    def ml_api(self):
-        return self._ml_api
 
     def run(self, *args, **kwargs):
         pass
@@ -165,9 +153,6 @@ def classify(self, data):
         'candidate': data.get('uri'),
         'id': self.request.id
     }
-    fraud_score = self.ml_api.get_score(data.get('uri'))
-    if fraud_score > self._default_fraud_score:
-        results_dict['confidence'] = fraud_score
     return results_dict
 
 

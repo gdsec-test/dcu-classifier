@@ -92,13 +92,11 @@ Environment variables for debugging dcu-classifier (ie: PyCharm)
 1. `sysenv` Runtime env: `dev`
 2. `DB_PASS` (Password for MongoDB)
 3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
-4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
-5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
-6. `API_TOKEN` for DCU Abuse (Scan API) shopper
-7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
-8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
-9. `BROKER_URL` URL of RabbitMQ run via docker-compose: `amqp://guest@localhost:5672//`
-10. `DISABLESSL` We dont need an ssl connection to local RabbitMQ: `False`
+4. `API_TOKEN` for DCU Abuse (Scan API) shopper
+5. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
+6. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
+7. `BROKER_URL` URL of RabbitMQ run via docker-compose: `amqp://guest@localhost:5672//`
+8. `DISABLESSL` We dont need an ssl connection to local RabbitMQ: `False`
 
 DCU Classifier can then be run/debugged locally by running `celery -A run worker -l debug -P solo`
 
@@ -107,14 +105,12 @@ If you would like to run this locally, you will need to specify the following en
 1. `sysenv` (dev, ote, prod)
 2. `DB_PASS` (Password for MongoDB)
 3. `WORKER_MODE` (needs to be `classify` or `scan`, default is `classify`)
-4. `ML_API_CERT` (path to `apiuser.cmap.int.` certificate)
-5. `ML_API_KEY` (path to `apiuser.cmap.int.` key)
-6. `API_TOKEN` for DCU Abuse (Scan API) shopper
-7. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
-8. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
-9. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7Av2` user
-10. `SSO_USER` user to retrieve JWT with.
-11. `SSO_PASSWORD` password to retrieve JWT with.
+4. `API_TOKEN` for DCU Abuse (Scan API) shopper
+5. `ABUSE_API_CREATE_URL` use `https://abuse.api.int.dev-godaddy.com/v1/abuse/tickets` for dev.
+6. `LOG_LEVEL` (DEBUG or INFO, INFO is default)
+7. `BROKER_PASS` RabbitMQ password for the `02d1081iywc7Av2` user
+8. `SSO_USER` user to retrieve JWT with.
+9. `SSO_PASSWORD` password to retrieve JWT with.
 
 You may also need to configure settings.py and celeryconfig.py to specify additional MongoDB and Celery settings.
 

@@ -39,10 +39,6 @@ spec:
           env:
             - name: WORKER_MODE
               value: scan
-            - name: ML_API_CERT
-              value: /mlapicerts/tls.crt
-            - name: ML_API_KEY
-              value: /mlapicerts/tls.key
             - name: MULTIPLE_BROKERS
               valueFrom:
                 secretKeyRef:
@@ -85,11 +81,3 @@ spec:
                 secretKeyRef:
                   name: apm-access
                   key: secret
-          volumeMounts:
-            - name: tls-files-api
-              mountPath: /mlapicerts
-              readOnly: true
-      volumes:
-        - name: tls-files-api
-          secret:
-            secretName: tls-mlapi-api

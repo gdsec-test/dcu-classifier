@@ -1,8 +1,12 @@
 import os
 
+from celery import Celery
 from kombu import Exchange, Queue
 
-from settings import AppConfig
+from settings import AppConfig, config_by_name
+
+env = os.getenv('sysenv', 'dev')
+config = config_by_name[env]()
 
 
 class CeleryConfig:
@@ -58,3 +62,7 @@ class CeleryConfig:
             'taskmeta_collection': 'classifier-celery'
         }
         self.task_queues = CeleryConfig._get_queues(app_settings)
+
+
+app = Celery()
+app.config_from_object(CeleryConfig(config))

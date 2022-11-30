@@ -36,7 +36,7 @@ class ProductionAppConfig(AppConfig):
     SSO_URL = 'https://sso.gdcorp.tools'
     SCAN_SHOPPER_ID = 'b3ec3417-96b8-4d86-be65-8b1a624fcb39'
     DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-    DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(DB_USER, DB_PASS, DB_HOST, DB)
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -50,7 +50,7 @@ class OTEAppConfig(AppConfig):
     SSO_URL = 'https://sso.ote-gdcorp.tools'
     SCAN_SHOPPER_ID = ''
     DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-    DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(DB_USER, DB_PASS, DB_HOST, DB)
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()

@@ -62,7 +62,8 @@ class DevelopmentAppConfig(AppConfig):
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
     DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-    DBURL = 'mongodb://{}:{}@{}/?authSource={}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile=%2Fmongo_common_certs%2Fmongo_client.pem'.format(DB_USER, DB_PASS, DB_HOST, DB)
+    CLIENT_CERT = os.getenv("MONGO_CLIENT_CERT", '')
+    DBURL = 'mongodb://{}:{}@{}/?authSource={}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile={}'.format(DB_USER, DB_PASS, DB_HOST, DB, CLIENT_CERT)
 
     SCAN_SHOPPER_ID = 'ec3a04cf-49d3-42a8-8360-7e536ba5aef8'
 
@@ -77,7 +78,8 @@ class TestEnvironmentAppConfig(AppConfig):
     EXCHANGE = 'testclassifier'
     SCAN_SHOPPER_ID = ''
     DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-    DBURL = 'mongodb://{}:{}@{}/?authSource={}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile=%2Fmongo_common_certs%2Fmongo_client.pem'.format(DB_USER, DB_PASS, DB_HOST, DB)
+    CLIENT_CERT = os.getenv("MONGO_CLIENT_CERT", '')
+    DBURL = 'mongodb://{}:{}@{}/?authSource={}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile={}'.format(DB_USER, DB_PASS, DB_HOST, DB, CLIENT_CERT)
 
     def __init__(self):
         super(TestEnvironmentAppConfig, self).__init__()

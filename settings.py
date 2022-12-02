@@ -25,8 +25,6 @@ class AppConfig(object):
     BROKER_URL = os.getenv('MULTIPLE_BROKERS')
 
     def __init__(self):
-        self.DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
-        self.DBURL = 'mongodb://{}:{}@{}/?authSource={}'.format(self.DB_USER, self.DB_PASS, self.DB_HOST, self.DB)
         self.WORKER_MODE = os.getenv('WORKER_MODE') or 'classify'  # should be either classify or scan
 
 
@@ -37,6 +35,8 @@ class ProductionAppConfig(AppConfig):
     EXCHANGE = 'classifier'
     SSO_URL = 'https://sso.gdcorp.tools'
     SCAN_SHOPPER_ID = 'b3ec3417-96b8-4d86-be65-8b1a624fcb39'
+    DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}'
 
     def __init__(self):
         super(ProductionAppConfig, self).__init__()
@@ -49,6 +49,8 @@ class OTEAppConfig(AppConfig):
     EXCHANGE = 'oteclassifier'
     SSO_URL = 'https://sso.ote-gdcorp.tools'
     SCAN_SHOPPER_ID = ''
+    DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}'
 
     def __init__(self):
         super(OTEAppConfig, self).__init__()
@@ -59,6 +61,9 @@ class DevelopmentAppConfig(AppConfig):
     DB_HOST = 'mongodb.cset.int.dev-gdcorp.tools'
     DB_USER = 'devuser'
     EXCHANGE = 'devclassifier'
+    DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
+    CLIENT_CERT = os.getenv("MONGO_CLIENT_CERT", '')
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile={CLIENT_CERT}'
 
     SCAN_SHOPPER_ID = 'ec3a04cf-49d3-42a8-8360-7e536ba5aef8'
 
@@ -72,6 +77,9 @@ class TestEnvironmentAppConfig(AppConfig):
     DB_USER = 'testuser'
     EXCHANGE = 'testclassifier'
     SCAN_SHOPPER_ID = ''
+    DB_PASS = quote(os.getenv('DB_PASS')) if os.getenv('DB_PASS') else 'password'
+    CLIENT_CERT = os.getenv("MONGO_CLIENT_CERT", '')
+    DBURL = f'mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}/?authSource={DB}&readPreference=primary&directConnection=true&tls=true&tlsCertificateKeyFile={CLIENT_CERT}'
 
     def __init__(self):
         super(TestEnvironmentAppConfig, self).__init__()

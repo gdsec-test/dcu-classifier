@@ -3,7 +3,7 @@ beautifulsoup4==4.9.3
 billiard==3.6.4.0
 bs4==0.0.1
 celery==5.2.6
-certifi==2020.12.5
+certifi==2022.12.7
 chardet==4.0.0
 click==8.0.3
 click-didyoumean==0.0.3
